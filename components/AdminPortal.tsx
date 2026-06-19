@@ -723,7 +723,17 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
       delete secureContent.smtp;
       delete secureContent.candidacies;
 
-      localStorage.setItem('motriz_landing_content', JSON.stringify(secureContent));
+      // Para evitar estourar a cota de 5MB do LocalStorage do navegador (QuotaExceededError),
+      // removemos a biblioteca de mídias pesada (uploadedFiles) da cópia local.
+      // O conteúdo completo com as mídias continuará sendo salvo no banco Supabase.
+      const localStorageContent = { ...secureContent };
+      delete localStorageContent.uploadedFiles;
+
+      try {
+        localStorage.setItem('motriz_landing_content', JSON.stringify(localStorageContent));
+      } catch (lsErr) {
+        console.warn('Erro ao salvar no LocalStorage (limite excedido), salvando no banco:', lsErr);
+      }
       
       if (isSupabaseConfigured()) {
         const { error } = await supabase
@@ -798,7 +808,13 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
         setImportFeedback({ success: true, text: 'Configurações importadas e aplicadas com sucesso!' });
         setJsonImportText('');
         // Save automatically
-        localStorage.setItem('motriz_landing_content', JSON.stringify(parsed));
+        const localStorageParsed = { ...parsed };
+        delete localStorageParsed.uploadedFiles;
+        try {
+          localStorage.setItem('motriz_landing_content', JSON.stringify(localStorageParsed));
+        } catch (lsErr) {
+          console.warn('Erro ao salvar importação no LocalStorage:', lsErr);
+        }
         
         if (isSupabaseConfigured()) {
           const { error } = await supabase

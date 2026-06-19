@@ -199,7 +199,13 @@ export default function TrabalheConoscoPage() {
       };
 
       // Persist content back directly under local storage key
-      localStorage.setItem('motriz_landing_content', JSON.stringify(updatedContent));
+      const localStorageContent = { ...updatedContent };
+      delete localStorageContent.uploadedFiles;
+      try {
+        localStorage.setItem('motriz_landing_content', JSON.stringify(localStorageContent));
+      } catch (lsErr) {
+        console.warn('Erro ao salvar no LocalStorage após candidatura:', lsErr);
+      }
       
       // Update local state smoothly
       setSiteContent(updatedContent);
