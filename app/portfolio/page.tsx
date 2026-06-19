@@ -16,17 +16,6 @@ export default function PortfolioPage() {
   const { siteContent, isMounted } = useSiteContent();
   const [filter, setFilter] = useState<string>('TODOS');
 
-  if (!isMounted) {
-    return (
-      <div className="min-h-screen bg-[#fcf9f8] flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="h-8 w-8 border-4 border-[#2d3f65] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="font-sans text-xs font-bold text-[#505f7c] tracking-widest uppercase">Carregando Acervo Construtivo...</p>
-        </div>
-      </div>
-    );
-  }
-  
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeProject, setActiveProject] = useState<any | null>(null);
@@ -44,6 +33,17 @@ export default function PortfolioPage() {
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isModalOpen]);
+
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-[#fcf9f8] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="h-8 w-8 border-4 border-[#2d3f65] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="font-sans text-xs font-bold text-[#505f7c] tracking-widest uppercase">Carregando Acervo Construtivo...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Handle header smooth scroll routing back to home page hash
   const handleScrollToSection = (sectionId: string) => {
