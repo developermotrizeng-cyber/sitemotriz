@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="motrizBlueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#2c7db3" />
+      <stop offset="50%" stopColor="#125785" />
+      <stop offset="100%" stopColor="#003b61" />
+    </linearGradient>
+  </defs>
+  <path d="M 5 18 L 22 34 L 22 78 L 5 94 Z" fill="url(#motrizBlueGradient)" />
+  <path d="M 95 18 L 78 34 L 78 78 L 95 94 Z" fill="url(#motrizBlueGradient)" />
+  <path d="M 12 0 L 50 36 L 88 0 L 74 0 L 50 24 L 26 0 Z" fill="url(#motrizBlueGradient)" />
+  <path d="M 40 48 L 50 58 L 60 48 L 60 92 L 50 82 L 40 92 Z" fill="url(#motrizBlueGradient)" />
+</svg>
