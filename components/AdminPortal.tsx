@@ -605,8 +605,7 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
         nome: 'Autenticação Motriz',
         email: authingEmail,
         tipoProjeto: 'Código MFA',
-        mensagem: `Seu código de acesso temporário ao Painel do Administrador da Motriz Engenharia é: ${generatedCode}\n\nEste código expira em 5 minutos.`,
-        smtp: content.smtp
+        mensagem: `Seu código de acesso temporário ao Painel do Administrador da Motriz Engenharia é: ${generatedCode}\n\nEste código expira em 5 minutos.`
       })
     })
     .then(async (res) => {
@@ -719,12 +718,17 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
     setSaveStatus('saving');
     
     try {
-      localStorage.setItem('motriz_landing_content', JSON.stringify(content));
+      // Remove dados sensíveis ou confidenciais antes de persistir no banco público
+      const secureContent = { ...content };
+      delete secureContent.smtp;
+      delete secureContent.candidacies;
+
+      localStorage.setItem('motriz_landing_content', JSON.stringify(secureContent));
       
       if (isSupabaseConfigured()) {
         const { error } = await supabase
           .from('site_content')
-          .upsert({ id: 'motriz_landing_content', content });
+          .upsert({ id: 'motriz_landing_content', content: secureContent });
         
         if (error) {
           console.error('Erro ao salvar no Supabase:', error);
@@ -3160,7 +3164,6 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
 
             </div>
           )}
-
           {/* TAB: SMTP EMAIL SERVER CONFIGURATION */}
           {activeTab === 'smtp' && (
             <div className="space-y-6" id="editor-smtp">
@@ -3168,214 +3171,39 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                 <div>
                   <h3 className="font-sans text-lg font-bold text-[#2d3f65]">📧 Servidor de E-mail (SMTP)</h3>
                   <p className="font-body text-xs text-[#505f7c]">
-                    Configure as credenciais de e-mail corporativo SMTP de saída para direcionar os dados recebidos para o e-mail de atendimento da Motriz.
+                    Gerenciamento seguro de SMTP para o envio de e-mails institucionais e notificações de candidaturas.
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 border border-green-200.5 rounded-full text-[11px] font-bold tracking-wide w-fit font-sans">
-                  <span>Status: Integrado com Nodemailer</span>
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-250 rounded-full text-[11px] font-bold tracking-wide w-fit font-sans">
+                  <span>Status: Protegido no Servidor</span>
                 </div>
               </div>
 
               {/* Informational Guidance Box */}
-              <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 rounded-lg text-xs leading-relaxed text-blue-900 space-y-2 font-body shadow-xs">
-                <span className="font-bold text-sm font-sans flex items-center gap-1.5 text-blue-950">💡 Como usar essa integração em produção?</span>
+              <div className="p-6 bg-gradient-to-r from-emerald-50 to-teal-50 border-l-4 border-emerald-600 rounded-lg text-xs leading-relaxed text-emerald-950 space-y-3 font-body shadow-xs">
+                <span className="font-bold text-sm font-sans flex items-center gap-1.5 text-emerald-950">🔒 Configuração Segura Ativa</span>
                 <p>
-                  Sempre que um potencial cliente preenche o formulário institucional de <strong>Contato</strong>, o site dispara uma chamada HTTP segura para as nossas rotas de servidor back-end que utilizam o <strong>Nodemailer</strong>. Essa rota estabelece conexão em tempo real utilizando os parâmetros SMTP configurados abaixo e envia uma representação HTML esteticamente perfeita com as coordenadas técnicas diretamente para a caixa postal selecionada.
+                  Para garantir total conformidade com a <strong>LGPD (Lei Geral de Proteção de Dados)</strong> e evitar o vazamento de dados confidenciais, as credenciais e parâmetros SMTP do servidor foram <strong>migrados e protegidos diretamente no servidor back-end</strong>.
                 </p>
-                <div className="text-[11px] font-semibold text-blue-950 mt-1">
-                  💡 Caso utilize o e-mail de remetente do Google (Gmail) ou Outlook, lembre-se de habilitar e gerar uma <strong>Senha de Aplicativo (App Password)</strong> dedicada nas configurações de autenticação de 2 etapas da conta do Office/Google.
-                </div>
+                <p>
+                  A edição ou exposição de senhas de e-mail no front-end foi desabilitada. Para gerenciar ou alterar os dados de envio de e-mail (como servidor, porta, usuário e senha), edite o arquivo <code className="bg-emerald-100/80 px-1 py-0.5 rounded font-mono text-[10px]">.env.local</code> no seu ambiente local, ou configure as variáveis de ambiente diretamente no painel de controle da <strong>Vercel</strong> em produção.
+                </p>
               </div>
 
-              {/* SMTP Credentials Form */}
-              <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-sm space-y-5">
-                <h4 className="font-sans text-xs font-bold text-[#2d3f65] uppercase tracking-wider border-b border-zinc-100 pb-2">Servidor SMTP de Saída (Remetente)</h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                  {/* SMTP HOST */}
-                  <div className="md:col-span-8 space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-zinc-500 block">Host do Servidor SMTP</label>
-                    <input 
-                      type="text" 
-                      placeholder="ex: smtp.gmail.com ou mail.motrizengenharia.com"
-                      value={content.smtp?.host || ''}
-                      onChange={(e) => {
-                        const baseSmtp = content.smtp || {
-                          host: 'smtp.gmail.com',
-                          port: 587,
-                          user: 'developermotrizeng@gmail.com',
-                          pass: '',
-                          secure: false,
-                          toEmail: 'developermotrizeng@gmail.com'
-                        };
-                        const updated = {
-                          ...content,
-                          smtp: {
-                            ...baseSmtp,
-                            host: e.target.value
-                          }
-                        };
-                        onUpdateContent(updated);
-                      }}
-                      className="w-full px-4 py-2.5 bg-[#f6f3f2] border border-[#c5c6cf] rounded text-xs focus:bg-white focus:outline-none transition-colors"
-                    />
-                  </div>
-
-                  {/* SMTP PORT */}
-                  <div className="md:col-span-4 space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-zinc-500 block">Porta SMTP</label>
-                    <input 
-                      type="number" 
-                      placeholder="ex: 587 ou 465"
-                      value={content.smtp?.port ?? 587}
-                      onChange={(e) => {
-                        const baseSmtp = content.smtp || {
-                          host: 'smtp.gmail.com',
-                          port: 587,
-                          user: 'developermotrizeng@gmail.com',
-                          pass: '',
-                          secure: false,
-                          toEmail: 'developermotrizeng@gmail.com'
-                        };
-                        const updated = {
-                          ...content,
-                          smtp: {
-                            ...baseSmtp,
-                            port: Number(e.target.value) || 587
-                          }
-                        };
-                        onUpdateContent(updated);
-                      }}
-                      className="w-full px-4 py-2.5 bg-[#f6f3f2] border border-[#c5c6cf] rounded text-xs focus:bg-white focus:outline-none transition-colors"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* SMTP USER */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-zinc-500 block">Usuário de Autenticação (E-mail Remetente)</label>
-                    <input 
-                      type="text" 
-                      placeholder="ex: contato@motrizengenharia.com"
-                      value={content.smtp?.user || ''}
-                      onChange={(e) => {
-                        const baseSmtp = content.smtp || {
-                          host: 'smtp.gmail.com',
-                          port: 587,
-                          user: 'developermotrizeng@gmail.com',
-                          pass: '',
-                          secure: false,
-                          toEmail: 'developermotrizeng@gmail.com'
-                        };
-                        const updated = {
-                          ...content,
-                          smtp: {
-                            ...baseSmtp,
-                            user: e.target.value
-                          }
-                        };
-                        onUpdateContent(updated);
-                      }}
-                      className="w-full px-4 py-2.5 bg-[#f6f3f2] border border-[#c5c6cf] rounded text-xs focus:bg-white focus:outline-none transition-colors"
-                    />
-                  </div>
-
-                  {/* SMTP PASS */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-zinc-500 block">Senha SMTP de Saída (ou Senha de App)</label>
-                    <input 
-                      type="password" 
-                      placeholder="••••••••••••••••"
-                      value={content.smtp?.pass || ''}
-                      onChange={(e) => {
-                        const baseSmtp = content.smtp || {
-                          host: 'smtp.gmail.com',
-                          port: 587,
-                          user: 'developermotrizeng@gmail.com',
-                          pass: '',
-                          secure: false,
-                          toEmail: 'developermotrizeng@gmail.com'
-                        };
-                        const updated = {
-                          ...content,
-                          smtp: {
-                            ...baseSmtp,
-                            pass: e.target.value
-                          }
-                        };
-                        onUpdateContent(updated);
-                      }}
-                      className="w-full px-4 py-2.5 bg-[#f6f3f2] border border-[#c5c6cf] rounded text-xs focus:bg-white focus:outline-none transition-colors"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 pt-2">
-                  <input 
-                    type="checkbox" 
-                    id="smtp-secure"
-                    checked={content.smtp?.secure || false}
-                    onChange={(e) => {
-                      const baseSmtp = content.smtp || {
-                        host: 'smtp.gmail.com',
-                        port: 587,
-                        user: 'developermotrizeng@gmail.com',
-                        pass: '',
-                        secure: false,
-                        toEmail: 'developermotrizeng@gmail.com'
-                      };
-                      const updated = {
-                        ...content,
-                        smtp: {
-                          ...baseSmtp,
-                          secure: e.target.checked
-                        }
-                      };
-                      onUpdateContent(updated);
-                    }}
-                    className="h-4 w-4 bg-[#f6f3f2] border border-[#c5c6cf] rounded text-xs focus:outline-none cursor-pointer"
-                  />
-                  <label htmlFor="smtp-secure" className="text-xs text-zinc-700 font-bold select-none cursor-pointer mt-0.5">
-                    Utilizar conexão SSL/TLS segura (Check obrigatório se a porta configurada for 465)
-                  </label>
-                </div>
-              </div>
-
-              {/* Destination Area Settings */}
+              {/* SMTP Credentials Instructions */}
               <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-sm space-y-4">
-                <h4 className="font-sans text-xs font-bold text-[#2d3f65] uppercase tracking-wider border-b border-zinc-100 pb-2">Destinatário Oficial</h4>
-                
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-zinc-500 block">Enviar Leads Recebidos Para:</label>
-                  <input 
-                    type="email" 
-                    placeholder="ex: comercial@motrizengenharia.com"
-                    value={content.smtp?.toEmail || ''}
-                    onChange={(e) => {
-                      const baseSmtp = content.smtp || {
-                        host: 'smtp.gmail.com',
-                        port: 587,
-                        user: 'developermotrizeng@gmail.com',
-                        pass: '',
-                        secure: false,
-                        toEmail: 'developermotrizeng@gmail.com'
-                      };
-                      const updated = {
-                        ...content,
-                        smtp: {
-                          ...baseSmtp,
-                          toEmail: e.target.value
-                        }
-                      };
-                      onUpdateContent(updated);
-                    }}
-                    className="w-full px-4 py-2.5 bg-[#f6f3f2] border border-[#c5c6cf] rounded text-xs focus:bg-white focus:outline-none transition-colors"
-                  />
-                  <p className="text-[10px] text-zinc-400 font-light pt-1">
-                    É neste endereço eletrônico de e-mail que você receberá os contatos preenchidos no site instucional da Motriz Engenharia.
-                  </p>
-                </div>
+                <h4 className="font-sans text-xs font-bold text-[#2d3f65] uppercase tracking-wider border-b border-zinc-100 pb-2">Variáveis de Ambiente Necessárias</h4>
+                <p className="font-body text-xs text-zinc-600">
+                  Adicione as seguintes variáveis de ambiente nas configurações da sua hospedagem ou arquivo local:
+                </p>
+                <pre className="p-4 bg-zinc-950 text-emerald-400 font-mono text-[11px] rounded-lg overflow-x-auto leading-relaxed border border-zinc-800">
+{`SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="seu-email-remetente@gmail.com"
+SMTP_PASS="sua-senha-de-aplicativo"
+SMTP_SECURE="false"
+SMTP_TO="rh@motrizengenharia.com.br"`}
+                </pre>
               </div>
             </div>
           )}

@@ -3,17 +3,17 @@ import nodemailer from 'nodemailer';
 
 export async function POST(req: NextRequest) {
   try {
-    const { nome, email, tipoProjeto, mensagem, smtp } = await req.json();
+    const { nome, email, tipoProjeto, mensagem } = await req.json();
 
-    const smtpHost = smtp?.host || process.env.SMTP_HOST;
-    const smtpPort = Number(smtp?.port || process.env.SMTP_PORT) || 587;
-    const smtpUser = smtp?.user || process.env.SMTP_USER;
-    const smtpPass = smtp?.pass || process.env.SMTP_PASS;
-    const smtpSecure = smtp?.secure !== undefined ? smtp.secure : (process.env.SMTP_SECURE === 'true' || smtpPort === 465);
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = Number(process.env.SMTP_PORT) || 587;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
 
     if (!smtpHost || !smtpUser || !smtpPass) {
       return NextResponse.json(
-        { error: 'Configuração SMTP não foi definida ou está incompleta. Por favor, configure as credenciais SMTP no arquivo .env.local ou no Painel do Administrador.' },
+        { error: 'Configuração SMTP não foi definida ou está incompleta no arquivo .env.local do servidor.' },
         { status: 400 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    const destination = smtp?.toEmail || process.env.SMTP_TO || smtpUser;
+    const destination = process.env.SMTP_TO || smtpUser;
     const isMfa = tipoProjeto === 'Código MFA';
 
     // Extrai o código de 6 dígitos se presente na mensagem
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // Send mail with defined transport object
     const info = await transporter.sendMail({
-      from: `"${nome}" <${smtp.user}>`, // authorized sender
+      from: `"${nome}" <${smtpUser}>`, // authorized sender
       replyTo: isMfa ? undefined : email, // reply to the lead's email
       to: isMfa ? email : destination, // send to user's email if MFA, else to landing page inbox
       subject: isMfa 

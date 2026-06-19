@@ -6,10 +6,9 @@ import { SiteContent } from '../lib/defaultData';
 
 interface ContactProps {
   content: SiteContent['contact'];
-  smtp?: SiteContent['smtp'];
 }
 
-export default function Contact({ content, smtp }: ContactProps) {
+export default function Contact({ content }: ContactProps) {
   // Form submission status and state
   const [formData, setFormData] = useState({
     nome: '',
@@ -61,8 +60,7 @@ export default function Contact({ content, smtp }: ContactProps) {
         nome: formData.nome,
         email: formData.email,
         tipoProjeto: formData.tipoProjeto,
-        mensagem: formData.mensagem,
-        smtp: smtp
+        mensagem: formData.mensagem
       })
     })
     .then(async (res) => {

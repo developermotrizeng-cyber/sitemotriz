@@ -4,8 +4,7 @@ export async function POST(req: NextRequest) {
   try {
     const { password } = await req.json();
     
-    // Obter as senhas permitidas a partir das variáveis de ambiente (seletor seguro no servidor)
-    const adminPasswordsEnv = process.env.ADMIN_PASSWORDS || 'motriz2026,motriz2024';
+    const adminPasswordsEnv = process.env.ADMIN_PASSWORDS || '#Motriz2026';
     const allowedPasswords = adminPasswordsEnv.split(',').map(p => p.trim());
     
     if (allowedPasswords.includes(password)) {

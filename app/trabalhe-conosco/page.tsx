@@ -212,8 +212,7 @@ export default function TrabalheConoscoPage() {
         },
         body: JSON.stringify({
           ...newCandidacy,
-          careersEmail: siteContent.careersEmail,
-          smtp: siteContent.smtp
+          careersEmail: siteContent.careersEmail
         })
       })
       .then(async (res) => {

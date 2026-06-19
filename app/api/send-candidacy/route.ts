@@ -14,32 +14,37 @@ export async function POST(req: NextRequest) {
       curriculoNome, 
       curriculoData,
       curriculoTipo,
-      careersEmail, 
-      smtp 
+      careersEmail
     } = await req.json();
 
-    if (!smtp || !smtp.host || !smtp.user || !smtp.pass) {
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = Number(process.env.SMTP_PORT) || 587;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
+
+    if (!smtpHost || !smtpUser || !smtpPass) {
       return NextResponse.json(
-        { error: 'Configuração SMTP não definida para envio automático. A candidatura foi registrada localmente.' },
+        { error: 'Configuração SMTP não definida no arquivo .env.local do servidor.' },
         { status: 400 }
       );
     }
 
     // Create nodemailer transporter
     const transporter = nodemailer.createTransport({
-      host: smtp.host,
-      port: Number(smtp.port) || 587,
-      secure: smtp.secure || smtp.port === 465,
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpSecure,
       auth: {
-        user: smtp.user,
-        pass: smtp.pass,
+        user: smtpUser,
+        pass: smtpPass,
       },
       tls: {
         rejectUnauthorized: false
       }
     });
 
-    const destination = careersEmail || smtp.toEmail || smtp.user;
+    const destination = careersEmail || process.env.SMTP_TO || smtpUser;
 
     // Compile attachments array if actual file data is provided
     const attachments = [];
@@ -60,7 +65,7 @@ export async function POST(req: NextRequest) {
     }
 
     const info = await transporter.sendMail({
-      from: `"${nome} (Candidato)" <${smtp.user}>`,
+      from: `"${nome} (Candidato)" <${smtpUser}>`,
       replyTo: email,
       to: destination,
       subject: `[RH Motriz] Novo Currículo Recebido: ${nome} - ${vaga.replace(/_/g, ' ')}`,

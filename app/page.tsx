@@ -135,7 +135,6 @@ export default function Home() {
 
       <Contact 
         content={siteContent.contact}
-        smtp={siteContent.smtp}
       />
 
       <Footer 
