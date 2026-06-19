@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 
 export async function POST(req: NextRequest) {
   try {
-    const { nome, email, tipoProjeto, mensagem } = await req.json();
+    const { nome, email, telefone, tipoProjeto, mensagem } = await req.json();
 
     const smtpHost = process.env.SMTP_HOST;
     const smtpPort = Number(process.env.SMTP_PORT) || 587;
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       subject: isMfa 
         ? `[Motriz Engenharia] Código de Acesso MFA: ${mfaCode}`
         : `[Motriz Engenharia] Novo Contato de ${nome} - ${tipoProjeto}`,
-      text: mensagem,
+      text: isMfa ? mensagem : `Novo contato recebido pelo site:\n\nNome: ${nome}\nE-mail: ${email}\nTelefone: ${telefone || 'Não informado'}\nTipo de Projeto: ${tipoProjeto}\n\nMensagem:\n${mensagem}`,
       html: isMfa ? `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
           <div style="background-color: #2d3f65; padding: 16px; border-radius: 6px; text-align: center; margin-bottom: 24px;">
@@ -97,6 +97,10 @@ export async function POST(req: NextRequest) {
             <tr>
               <td style="padding: 6px 0; color: #718096; font-weight: bold;">E-mail do Cliente:</td>
               <td style="padding: 6px 0; color: #2d3748;"><a href="mailto:${email}" style="color: #3182ce; text-decoration: none;">${email}</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #718096; font-weight: bold;">Telefone do Cliente:</td>
+              <td style="padding: 6px 0; color: #2d3748; font-weight: bold;">${telefone || 'Não informado'}</td>
             </tr>
             <tr>
               <td style="padding: 6px 0; color: #718096; font-weight: bold;">Tipo de Obra/Projeto:</td>

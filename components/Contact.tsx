@@ -13,6 +13,7 @@ export default function Contact({ content }: ContactProps) {
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
+    telefone: '',
     tipoProjeto: 'Engenharia Civil / Estrutural',
     mensagem: ''
   });
@@ -46,6 +47,10 @@ export default function Contact({ content }: ContactProps) {
       setErrorMsg('Por favor, insira um e-mail corporativo válido.');
       return;
     }
+    if (!formData.telefone.trim()) {
+      setErrorMsg('Por favor, insira seu telefone de contato.');
+      return;
+    }
     if (!formData.mensagem.trim()) {
       setErrorMsg('Por favor, escreva uma breve mensagem sobre o seu projeto.');
       return;
@@ -59,6 +64,7 @@ export default function Contact({ content }: ContactProps) {
       body: JSON.stringify({
         nome: formData.nome,
         email: formData.email,
+        telefone: formData.telefone,
         tipoProjeto: formData.tipoProjeto,
         mensagem: formData.mensagem
       })
@@ -71,6 +77,7 @@ export default function Contact({ content }: ContactProps) {
         setFormData({
           nome: '',
           email: '',
+          telefone: '',
           tipoProjeto: 'Engenharia Civil / Estrutural',
           mensagem: ''
         });
@@ -184,23 +191,24 @@ export default function Contact({ content }: ContactProps) {
                   </div>
                 )}
 
-                {/* Name / Corporate Email grids */}
+                {/* Nome Completo - Largura total */}
+                <div className="space-y-2">
+                  <label className="block font-sans text-xs font-bold text-[#44464e] uppercase tracking-wider">
+                    Nome Completo
+                  </label>
+                  <input 
+                    type="text" 
+                    name="nome"
+                    value={formData.nome}
+                    onChange={handleInputChange}
+                    placeholder={content.formNamePlaceholder}
+                    className="w-full px-4 py-3 bg-[#f6f3f2] border border-[#c5c6cf] focus:border-[#2d3f65] focus:bg-white focus:outline-none rounded text-sm text-[#1b1c1c] transition-all"
+                  />
+                </div>
+
+                {/* E-mail e Telefone - Lado a Lado */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   
-                  <div className="space-y-2">
-                    <label className="block font-sans text-xs font-bold text-[#44464e] uppercase tracking-wider">
-                      Nome Completo
-                    </label>
-                    <input 
-                      type="text" 
-                      name="nome"
-                      value={formData.nome}
-                      onChange={handleInputChange}
-                      placeholder={content.formNamePlaceholder}
-                      className="w-full px-4 py-3 bg-[#f6f3f2] border border-[#c5c6cf] focus:border-[#2d3f65] focus:bg-white focus:outline-none rounded text-sm text-[#1b1c1c] transition-all"
-                    />
-                  </div>
-
                   <div className="space-y-2">
                     <label className="block font-sans text-xs font-bold text-[#44464e] uppercase tracking-wider">
                       E-mail Corporativo
@@ -211,6 +219,20 @@ export default function Contact({ content }: ContactProps) {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder={content.formEmailPlaceholder}
+                      className="w-full px-4 py-3 bg-[#f6f3f2] border border-[#c5c6cf] focus:border-[#2d3f65] focus:bg-white focus:outline-none rounded text-sm text-[#1b1c1c] transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block font-sans text-xs font-bold text-[#44464e] uppercase tracking-wider">
+                      Telefone de Contato
+                    </label>
+                    <input 
+                      type="tel" 
+                      name="telefone"
+                      value={formData.telefone}
+                      onChange={handleInputChange}
+                      placeholder="Ex: (69) 99999-1234"
                       className="w-full px-4 py-3 bg-[#f6f3f2] border border-[#c5c6cf] focus:border-[#2d3f65] focus:bg-white focus:outline-none rounded text-sm text-[#1b1c1c] transition-all"
                     />
                   </div>
