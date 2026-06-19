@@ -24,8 +24,12 @@ export async function POST(req: NextRequest) {
     const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
 
     if (!smtpHost || !smtpUser || !smtpPass) {
+      const missing = [];
+      if (!smtpHost) missing.push('SMTP_HOST');
+      if (!smtpUser) missing.push('SMTP_USER');
+      if (!smtpPass) missing.push('SMTP_PASS');
       return NextResponse.json(
-        { error: 'Configuração SMTP não definida no arquivo .env.local do servidor.' },
+        { error: `Configuração SMTP incompleta no servidor. Variáveis faltando: ${missing.join(', ')}` },
         { status: 400 }
       );
     }
