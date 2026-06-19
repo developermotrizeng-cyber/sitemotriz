@@ -1,0 +1,6 @@
+{
+  "name": "Motriz Engenharia",
+  "description": "Landing Page profissional da Motriz Engenharia e Construções Ltda em Porto Velho - RO, incluindo portal administrativo avançado e responsivo para edição de conteúdos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
