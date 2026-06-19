@@ -124,9 +124,6 @@ export async function POST(req: NextRequest) {
             "${mensagem ? mensagem.replace(/\n/g, '<br/>') : 'O candidato não enviou uma mensagem de apresentação.'}"
           </div>
 
-          <p style="font-size: 11px; color: #e53e3e; background-color: #fffaf0; border: 1px dashed #fbd38d; padding: 10px; border-radius: 4px; line-height: 1.4;">
-            <strong>Nota do Sistema:</strong> Como se trata de um banco de talentos estático em ambiente de demonstração, o arquivo físico anexado está disponível para análise técnica detalhada no <strong>Portal do Administrador</strong>.
-          </p>
 
           <div style="font-size: 11px; color: #a0aec0; text-align: center; margin-top: 32px; border-top: 1px solid #E2E8F0; padding-top: 16px;">
             Este e-mail foi disparado automaticamente via SMTP configurado no painel da Motriz Engenharia.<br/>
