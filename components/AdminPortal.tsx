@@ -558,7 +558,7 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
       
       const result = await response.json();
       if (!response.ok || !result.success) {
-        setAuthError('Senha de segurança incorreta para o colaborador.');
+        setAuthError(result.error || 'Senha de segurança incorreta para o colaborador.');
         return;
       }
 
