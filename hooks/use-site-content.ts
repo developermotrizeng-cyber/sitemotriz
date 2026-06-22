@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { SiteContent, defaultSiteContent } from '../lib/defaultData';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
@@ -75,11 +75,35 @@ function mergeContent(parsed: any): SiteContent {
 export function useSiteContent() {
   const [siteContent, setSiteContent] = useState<SiteContent>(defaultSiteContent);
   const [isMounted, setIsMounted] = useState(false);
+  const hasUpdatedRef = useRef(false);
+
+  // Wrap setSiteContent to detect when the state is modified by the admin
+  const setSiteContentExternal = useCallback((newContent: SiteContent | ((prev: SiteContent) => SiteContent)) => {
+    hasUpdatedRef.current = true;
+    setSiteContent(newContent);
+  }, []);
 
   useEffect(() => {
     let active = true;
 
-    async function loadContent() {
+    // 1. Load from localStorage immediately on mount
+    try {
+      const persisted = localStorage.getItem('motriz_landing_content');
+      if (persisted && active) {
+        const parsed = JSON.parse(persisted);
+        setSiteContent(mergeContent(parsed));
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar do localStorage no início.', e);
+    }
+    
+    // Set isMounted to true immediately so pages render without waiting for Supabase query
+    if (active) {
+      setIsMounted(true);
+    }
+
+    // 2. Fetch the latest content from Supabase in the background
+    async function loadContentRemote() {
       if (isSupabaseConfigured()) {
         try {
           const { data, error } = await supabase
@@ -89,40 +113,36 @@ export function useSiteContent() {
             .maybeSingle();
 
           if (error) {
-            console.warn('Erro ao carregar do Supabase. Usando localStorage...', error);
+            console.warn('Erro ao carregar do Supabase em segundo plano:', error);
           } else if (data && data.content && active) {
-            setSiteContent(mergeContent(data.content));
-            setIsMounted(true);
-            return;
+            // Only update active state if the user hasn't made edits in the current session
+            if (!hasUpdatedRef.current) {
+              setSiteContent(mergeContent(data.content));
+            }
+            
+            // Always update localStorage cache for the next reload
+            try {
+              const secureContent = { ...data.content };
+              delete secureContent.smtp;
+              delete secureContent.candidacies;
+              delete secureContent.uploadedFiles;
+              localStorage.setItem('motriz_landing_content', JSON.stringify(secureContent));
+            } catch (lsErr) {
+              console.warn('Erro ao salvar no LocalStorage após fetch remoto:', lsErr);
+            }
           }
         } catch (supErr) {
-          console.warn('Falha na requisição do Supabase. Usando fallback local...', supErr);
+          console.warn('Falha na requisição em segundo plano do Supabase:', supErr);
         }
-      }
-
-      // Fallback
-      try {
-        const persisted = localStorage.getItem('motriz_landing_content');
-        if (persisted && active) {
-          const parsed = JSON.parse(persisted);
-          setSiteContent(mergeContent(parsed));
-        }
-      } catch (e) {
-        console.warn('Erro ao carregar do localStorage.', e);
-      }
-      if (active) {
-        setIsMounted(true);
       }
     }
 
-    setTimeout(() => {
-      loadContent();
-    }, 0);
+    loadContentRemote();
 
     return () => {
       active = false;
     };
   }, []);
 
-  return { siteContent, setSiteContent, isMounted };
+  return { siteContent, setSiteContent: setSiteContentExternal, isMounted };
 }
