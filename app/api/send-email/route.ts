@@ -1,10 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { createClient } from '@supabase/supabase-js';
+
+// Cria cliente Supabase server-side (sem expor ao frontend)
+function getSupabaseServer() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key || url === 'MY_SUPABASE_URL' || key === 'MY_SUPABASE_ANON_KEY') {
+    return null;
+  }
+  return createClient(url, key);
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { nome, email, telefone, tipoProjeto, mensagem } = await req.json();
 
+    // 1. Persistir o contato no Supabase (mesmo se SMTP falhar, o lead fica salvo)
+    const supabase = getSupabaseServer();
+    if (supabase) {
+      try {
+        const contactId = `contact-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+        const { error: insertError } = await supabase
+          .from('contact_requests')
+          .insert({
+            id: contactId,
+            nome: nome?.trim() || '',
+            email: email?.trim() || '',
+            telefone: telefone?.trim() || null,
+            tipo_projeto: tipoProjeto || '',
+            mensagem: mensagem?.trim() || null,
+          });
+        if (insertError) {
+          console.warn('Erro ao salvar contato no Supabase (continuando com SMTP):', insertError);
+        }
+      } catch (dbErr) {
+        console.warn('Falha na conexão com Supabase para salvar contato:', dbErr);
+      }
+    }
+
+    // 2. Enviar e-mail via SMTP
     const smtpHost = process.env.SMTP_HOST;
     const smtpPort = Number(process.env.SMTP_PORT) || 587;
     const smtpUser = process.env.SMTP_USER;

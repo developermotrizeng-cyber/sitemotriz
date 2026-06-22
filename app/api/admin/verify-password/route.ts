@@ -4,7 +4,15 @@ export async function POST(req: NextRequest) {
   try {
     const { password } = await req.json();
     
-    const adminPasswordsEnv = process.env.ADMIN_PASSWORDS || '#Motriz2026';
+    const adminPasswordsEnv = process.env.ADMIN_PASSWORDS;
+    
+    if (!adminPasswordsEnv) {
+      return NextResponse.json(
+        { success: false, error: 'Variável ADMIN_PASSWORDS não configurada no servidor. Contate o administrador.' },
+        { status: 503 }
+      );
+    }
+    
     const allowedPasswords = adminPasswordsEnv.split(',').map(p => p.trim());
     
     if (allowedPasswords.includes(password)) {

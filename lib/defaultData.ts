@@ -116,14 +116,6 @@ export interface SiteContent {
     facebookUrl?: string;
     linkedinUrl?: string;
   };
-  smtp?: {
-    host: string;
-    port: number;
-    user: string;
-    pass: string;
-    secure: boolean;
-    toEmail: string;
-  };
    careersEmail?: string;
   candidacies?: {
     id: string;
@@ -323,14 +315,6 @@ export const defaultSiteContent: SiteContent = {
     instagramUrl: "https://www.instagram.com/motrizengenharia",
     facebookUrl: "https://www.facebook.com/motrizengenharia",
     linkedinUrl: "https://www.linkedin.com/company/motrizengenharia"
-  },
-  smtp: {
-    host: "smtp.gmail.com",
-    port: 587,
-    user: "developermotrizeng@gmail.com",
-    pass: "",
-    secure: false,
-    toEmail: "developermotrizeng@gmail.com"
   },
   partners: {
     tag: "NOSSOS PARCEIROS",

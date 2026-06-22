@@ -124,4 +124,36 @@ CREATE POLICY "Permitir leitura publica de curriculos"
 ON storage.objects FOR SELECT 
 TO public 
 USING (bucket_id = 'resumes');
+
+
+-- =====================================================================
+-- 4. TABELA DE CONTATOS / SOLICITAÇÕES DE ORÇAMENTO
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS public.contact_requests (
+    id TEXT PRIMARY KEY,
+    nome TEXT NOT NULL,
+    email TEXT NOT NULL,
+    telefone TEXT,
+    tipo_projeto TEXT NOT NULL,
+    mensagem TEXT,
+    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS
+ALTER TABLE public.contact_requests ENABLE ROW LEVEL SECURITY;
+
+-- Remover políticas antigas se já existirem
+DROP POLICY IF EXISTS "Permitir envio público de contatos" ON public.contact_requests;
+DROP POLICY IF EXISTS "Permitir leitura de contatos por colaboradores" ON public.contact_requests;
+
+-- Política de envio (inserção) público via formulário do site
+CREATE POLICY "Permitir envio público de contatos" 
+ON public.contact_requests FOR INSERT 
+WITH CHECK (true);
+
+-- Política de leitura/gerenciamento restrito (painel admin)
+CREATE POLICY "Permitir leitura de contatos por colaboradores" 
+ON public.contact_requests FOR SELECT 
+USING (true);
+
 -- =====================================================================
