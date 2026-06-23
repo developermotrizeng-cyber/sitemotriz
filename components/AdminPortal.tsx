@@ -389,16 +389,62 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
     processFile(file);
   };
 
-  const processFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const dataUrl = reader.result as string;
+  const processFile = async (file: File) => {
+    // Helper para converter base64 em Blob para upload
+    const dataURLtoBlob = (dataurl: string) => {
+      const arr = dataurl.split(',');
+      const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while(n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], {type:mime});
+    };
+
+    const processUpload = async (finalDataUrl: string, fileName: string, fileType: string, fileSizeStr: string) => {
+      let finalUrl = finalDataUrl;
+      let isUploadedToCloud = false;
+
+      if (isSupabaseConfigured() && supabase) {
+        try {
+          const blob = dataURLtoBlob(finalDataUrl);
+          const safeName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const filePath = `public/${Date.now()}-${safeName}`;
+
+          // Tenta fazer o upload para o bucket 'media' do Supabase
+          const { data, error } = await supabase.storage
+            .from('media')
+            .upload(filePath, blob, {
+              contentType: fileType,
+              cacheControl: '3600',
+              upsert: true
+            });
+
+          if (!error && data) {
+            const { data: publicUrlData } = supabase.storage
+              .from('media')
+              .getPublicUrl(filePath);
+            
+            if (publicUrlData?.publicUrl) {
+              finalUrl = publicUrlData.publicUrl;
+              isUploadedToCloud = true;
+            }
+          } else {
+            console.warn('Erro ao subir para o Supabase Storage, usando base64 compactado como fallback:', error);
+          }
+        } catch (err) {
+          console.warn('Falha no upload para o Supabase Storage (usando fallback base64):', err);
+        }
+      }
+
       const newFile = {
         id: `file-${Date.now()}`,
-        name: file.name,
-        dataUrl: dataUrl,
-        size: (file.size / 1024).toFixed(1) + ' KB',
-        type: file.type
+        name: isUploadedToCloud ? `${fileName} (Nuvem)` : `${fileName} (Compactado local)`,
+        dataUrl: finalUrl,
+        size: fileSizeStr,
+        type: fileType
       };
       
       const currentList = content.uploadedFiles || [];
@@ -408,6 +454,61 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
         ...content,
         uploadedFiles: updatedList
       });
+    };
+
+    if (!file.type.startsWith('image/')) {
+      // Arquivos que não são imagens (PDFs, docs) são lidos normalmente
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        processUpload(dataUrl, file.name, file.type, (file.size / 1024).toFixed(1) + ' KB');
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // Redimensionamento e compressão da imagem usando Canvas
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1200; // Resolução máxima razoável para web
+        const MAX_HEIGHT = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Comprime para JPEG com qualidade 75%
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          
+          // Estima o tamanho final comprimido
+          const stringLength = compressedDataUrl.length - 'data:image/jpeg;base64,'.length;
+          const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
+          const sizeInKb = (sizeInBytes / 1024).toFixed(1) + ' KB';
+
+          const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".jpg"; // Força formato jpg leve
+          processUpload(compressedDataUrl, newFileName, 'image/jpeg', sizeInKb);
+        }
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
