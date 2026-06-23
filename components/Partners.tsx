@@ -25,11 +25,11 @@ export default function Partners({ content }: PartnersProps) {
         </div>
 
         {/* Large Logo Cards Centered Wrapper */}
-        <div className="flex flex-wrap gap-6 items-center justify-center max-w-5xl mx-auto" id="partners-grid">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-4xl mx-auto justify-center" id="partners-grid">
           {content.items && content.items.map((partner) => (
             <div 
               key={partner.id}
-              className="bg-white border border-[#E2E8F0] rounded w-[220px] sm:w-[260px] aspect-[4/3] flex items-center justify-center hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+              className="bg-white border border-[#E2E8F0] rounded w-[160px] sm:w-[200px] aspect-[4/3] flex items-center justify-center mx-auto hover:shadow-lg transition-all duration-300 relative overflow-hidden"
               id={`partner-card-${partner.id}`}
             >
               <img 
