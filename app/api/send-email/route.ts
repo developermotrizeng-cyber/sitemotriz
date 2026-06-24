@@ -16,26 +16,32 @@ export async function POST(req: NextRequest) {
   try {
     const { nome, email, telefone, tipoProjeto, mensagem } = await req.json();
 
-    // 1. Persistir o contato no Supabase (mesmo se SMTP falhar, o lead fica salvo)
-    const supabase = getSupabaseServer();
-    if (supabase) {
-      try {
-        const contactId = `contact-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-        const { error: insertError } = await supabase
-          .from('contact_requests')
-          .insert({
-            id: contactId,
-            nome: nome?.trim() || '',
-            email: email?.trim() || '',
-            telefone: telefone?.trim() || null,
-            tipo_projeto: tipoProjeto || '',
-            mensagem: mensagem?.trim() || null,
-          });
-        if (insertError) {
-          console.warn('Erro ao salvar contato no Supabase (continuando com SMTP):', insertError);
+    const isMfa = tipoProjeto === 'Código MFA';
+    const isRecovery = tipoProjeto === 'Recuperação de Acesso';
+    const isSystemEmail = isMfa || isRecovery;
+
+    // 1. Persistir o contato no Supabase (apenas se NÃO for e-mail de sistema como MFA ou Recuperação de Acesso)
+    if (!isSystemEmail) {
+      const supabase = getSupabaseServer();
+      if (supabase) {
+        try {
+          const contactId = `contact-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+          const { error: insertError } = await supabase
+            .from('contact_requests')
+            .insert({
+              id: contactId,
+              nome: nome?.trim() || '',
+              email: email?.trim() || '',
+              telefone: telefone?.trim() || null,
+              tipo_projeto: tipoProjeto || '',
+              mensagem: mensagem?.trim() || null,
+            });
+          if (insertError) {
+            console.warn('Erro ao salvar contato no Supabase (continuando com SMTP):', insertError);
+          }
+        } catch (dbErr) {
+          console.warn('Falha na conexão com Supabase para salvar contato:', dbErr);
         }
-      } catch (dbErr) {
-        console.warn('Falha na conexão com Supabase para salvar contato:', dbErr);
       }
     }
 
@@ -72,22 +78,16 @@ export async function POST(req: NextRequest) {
     });
 
     const destination = process.env.SMTP_TO || smtpUser;
-    const isMfa = tipoProjeto === 'Código MFA';
+    const isToUser = isMfa || isRecovery;
 
     // Extrai o código de 6 dígitos se presente na mensagem
     const mfaCodeMatch = mensagem.match(/\b\d{6}\b/);
     const mfaCode = mfaCodeMatch ? mfaCodeMatch[0] : '';
 
-    // Send mail with defined transport object
-    const info = await transporter.sendMail({
-      from: `"${nome}" <${smtpUser}>`, // authorized sender
-      replyTo: isMfa ? undefined : email, // reply to the lead's email
-      to: isMfa ? email : destination, // send to user's email if MFA, else to landing page inbox
-      subject: isMfa 
-        ? `[Motriz Engenharia] Código de Acesso MFA: ${mfaCode}`
-        : `[Motriz Engenharia] Novo Contato de ${nome} - ${tipoProjeto}`,
-      text: isMfa ? mensagem : `Novo contato recebido pelo site:\n\nNome: ${nome}\nE-mail: ${email}\nTelefone: ${telefone || 'Não informado'}\nTipo de Projeto: ${tipoProjeto}\n\nMensagem:\n${mensagem}`,
-      html: isMfa ? `
+    // Escolhe o template HTML apropriado
+    let mailHtml = '';
+    if (isMfa) {
+      mailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
           <div style="background-color: #2d3f65; padding: 16px; border-radius: 6px; text-align: center; margin-bottom: 24px;">
             <h1 style="color: #ffffff; font-size: 20px; font-weight: bold; margin: 0; letter-spacing: 1px;">MOTRIZ ENGENHARIA</h1>
@@ -115,7 +115,28 @@ export async function POST(req: NextRequest) {
             Este é um e-mail automático enviado de forma segura pela Motriz Engenharia.
           </div>
         </div>
-      ` : `
+      `;
+    } else if (isRecovery) {
+      mailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
+          <div style="background-color: #2d3f65; padding: 16px; border-radius: 6px; text-align: center; margin-bottom: 24px;">
+            <h1 style="color: #ffffff; font-size: 20px; font-weight: bold; margin: 0; letter-spacing: 1px;">MOTRIZ ENGENHARIA</h1>
+            <p style="color: #becee0; font-size: 12px; margin: 4px 0 0 0; text-transform: uppercase; font-family: monospace;">Recuperação de Acesso</p>
+          </div>
+          
+          <h2 style="color: #2d3f65; font-size: 16px; font-weight: bold; margin-bottom: 16px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">Dados do Acesso</h2>
+          
+          <div style="background-color: #f7fafc; border-left: 4px solid #2d3f65; padding: 16px; border-radius: 0 4px 4px 0; font-size: 14px; color: #4a5568; line-height: 1.6; margin-bottom: 24px;">
+            ${mensagem.replace(/\n/g, '<br/>')}
+          </div>
+          
+          <div style="font-size: 11px; color: #a0aec0; text-align: center; margin-top: 32px; border-top: 1px solid #E2E8F0; padding-top: 16px;">
+            Este é um e-mail automático enviado de forma segura pela Motriz Engenharia.
+          </div>
+        </div>
+      `;
+    } else {
+      mailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
           <div style="background-color: #2d3f65; padding: 16px; border-radius: 6px; text-align: center; margin-bottom: 24px;">
             <h1 style="color: #ffffff; font-size: 20px; font-weight: bold; margin: 0; letter-spacing: 1px;">MOTRIZ ENGENHARIA</h1>
@@ -153,7 +174,21 @@ export async function POST(req: NextRequest) {
             Para responder ao cliente, responda diretamente a este e-mail.
           </div>
         </div>
-      `,
+      `;
+    }
+
+    // Send mail with defined transport object
+    const info = await transporter.sendMail({
+      from: `"${nome}" <${smtpUser}>`, // authorized sender
+      replyTo: isToUser ? undefined : email, // reply to the lead's email
+      to: isToUser ? email : destination, // send to user's email if MFA/Recovery, else to landing page inbox
+      subject: isMfa 
+        ? `[Motriz Engenharia] Código de Acesso MFA: ${mfaCode}`
+        : isRecovery
+        ? `[Motriz Engenharia] Novo Contato de Suporte Motriz Engenharia - Recuperação de Acesso`
+        : `[Motriz Engenharia] Novo Contato de ${nome} - ${tipoProjeto}`,
+      text: isToUser ? mensagem : `Novo contato recebido pelo site:\n\nNome: ${nome}\nE-mail: ${email}\nTelefone: ${telefone || 'Não informado'}\nTipo de Projeto: ${tipoProjeto}\n\nMensagem:\n${mensagem}`,
+      html: mailHtml,
     });
 
     return NextResponse.json({ success: true, messageId: info.messageId });

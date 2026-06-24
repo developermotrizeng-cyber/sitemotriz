@@ -686,7 +686,7 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
       
       const result = await response.json();
