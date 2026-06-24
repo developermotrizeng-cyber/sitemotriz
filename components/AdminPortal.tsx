@@ -1194,141 +1194,38 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
               </div>
 
               <div className="border-y border-[#f0eded] py-4 space-y-4">
-                <span className="block font-sans text-[10px] font-bold text-[#44464e] uppercase tracking-wider text-center">
-                  Escolha o seu canal preferencial de MFA:
-                </span>
-                
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'email', label: 'E-mail', icon: Mail },
-                    { id: 'sms', label: 'SMS', icon: Phone },
-                    { id: 'authenticator', label: 'App OTP', icon: Key }
-                  ].map((chan) => {
-                    const Icon = chan.icon;
-                    const isActive = selectedMfaChannel === chan.id;
-                    return (
-                      <button
-                        key={chan.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedMfaChannel(chan.id as any);
-                          setMfaSent(false);
-                        }}
-                        className={`p-3 rounded-lg border text-center flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                          isActive 
-                            ? 'bg-[#2d3f65] text-white border-[#2d3f65] shadow-md' 
-                            : 'bg-[#fcf9f8] text-[#505f7c] border-[#c5c6cf] hover:bg-[#bbccfb]/10'
-                        }`}
-                      >
-                        <Icon className="h-5 w-5" />
-                        <span className="text-[10px] font-bold">{chan.label}</span>
-                      </button>
-                    );
-                  })}
+                <div className="bg-[#bbccfb]/10 p-3.5 rounded-lg border border-[#bbccfb]/20 flex items-center gap-3 text-left animate-in fade-in duration-300">
+                  <Mail className="h-5 w-5 text-[#2d3f65] shrink-0" />
+                  <div>
+                    <span className="block text-[10px] font-bold text-[#2d3f65] uppercase tracking-wider">
+                      Canal de Validação Ativo
+                    </span>
+                    <p className="text-[11px] text-[#505f7c] leading-relaxed">
+                      O código de verificação temporário será enviado para o e-mail cadastrado do colaborador.
+                    </p>
+                  </div>
                 </div>
 
                 {!mfaSent ? (
                   <button
                     type="button"
                     onClick={handleSendMfaCode}
-                    className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-900 text-white rounded font-sans text-xs font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-2"
+                    className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-900 text-white rounded font-sans text-xs font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    {selectedMfaChannel === 'authenticator' ? (
-                      <>
-                        <Key className="h-3.5 w-3.5" />
-                        <span>Gerar Token do App Autenticador</span>
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="h-3.5 w-3.5 animate-spin-slow" />
-                        <span>Enviar Código de Confirmação</span>
-                      </>
-                    )}
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin-slow" />
+                    <span>Enviar Código de Confirmação</span>
                   </button>
                 ) : (
                   <div className="bg-emerald-50 border border-emerald-200 rounded p-4 text-center space-y-3 animate-in fade-in duration-300">
-                    {selectedMfaChannel === 'authenticator' ? (
-                      <div className="space-y-3 text-left">
-                        <span className="block text-[10px] uppercase font-bold text-emerald-800 text-center">
-                          🔐 APP TOTP AUTENTICADOR ATIVO
-                        </span>
-                        <div className="flex items-center gap-4 bg-white p-3 rounded border border-emerald-100">
-                          {/* Beautiful SVG QR code mockup */}
-                          <div className="w-20 h-20 bg-zinc-100 rounded border border-zinc-200 flex items-center justify-center p-1 shrink-0">
-                            <svg className="w-full h-full text-[#2d3f65]" viewBox="0 0 100 100" fill="currentColor">
-                              <rect x="5" y="5" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="6" />
-                              <rect x="12" y="12" width="11" height="11" />
-                              <rect x="70" y="5" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="6" />
-                              <rect x="77" y="12" width="11" height="11" />
-                              <rect x="5" y="70" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="6" />
-                              <rect x="12" y="77" width="11" height="11" />
-                              
-                              <rect x="40" y="10" width="8" height="20" />
-                              <rect x="55" y="5" width="10" height="10" />
-                              <rect x="40" y="40" width="20" height="20" />
-                              <rect x="10" y="40" width="20" height="8" />
-                              <rect x="70" y="40" width="15" height="15" />
-                              <rect x="70" y="60" width="25" height="10" />
-                              <rect x="45" y="70" width="10" height="25" />
-                              <rect x="60" y="80" width="35" height="15" />
-                            </svg>
-                          </div>
-                          <div className="text-xs space-y-1 text-zinc-700">
-                            <p className="font-bold">Para parear seu aplicativo:</p>
-                            <p className="text-[10px] text-zinc-500 leading-normal">Escaneie o QR Code acima ou insira a chave:</p>
-                            <code className="bg-zinc-100 text-[#2d3f65] font-mono px-1.5 py-0.5 rounded font-bold block text-[10px] w-fit">
-                              MOTR-IZEN-GENH-ARIA-2026
-                            </code>
-                          </div>
-                        </div>
-                        <div className="bg-[#bbccfb]/15 border border-[#bbccfb]/40 rounded p-2.5 text-center">
-                          <span className="block text-[9px] uppercase font-bold text-[#2d3f65] tracking-wider mb-1">
-                            🤖 Modo Simulação (Painel OTP Virtual):
-                          </span>
-                          <span className="text-xl font-mono font-black text-[#2d3f65] tracking-widest block py-1">
-                            {simulatedMfaCode.slice(0, 3)} {simulatedMfaCode.slice(3)}
-                          </span>
-                          <div className="flex items-center justify-center gap-1.5 mt-1">
-                            <div className="w-3 h-3 rounded-full border border-[#2d3f65] border-t-transparent animate-spin" />
-                            <span className="text-[9px] text-[#505f7c]">
-                              Atualiza em <strong>{countdown}s</strong>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ) : selectedMfaChannel === 'sms' ? (
-                      <div className="space-y-2 text-left">
-                        <span className="block text-[10px] uppercase font-bold text-emerald-800 text-center">
-                          📱 CÓDIGO ENVIADO VIA SMS
-                        </span>
-                        <p className="text-[11px] text-[#2d3f65] font-medium leading-relaxed text-center">
-                          Enviamos uma mensagem SMS para o número cadastrado.
-                        </p>
-                        <div className="bg-[#bbccfb]/15 border border-[#bbccfb]/40 rounded p-2.5 text-center">
-                          <span className="block text-[9px] uppercase font-bold text-[#2d3f65] tracking-wider mb-1">
-                            🤖 Modo Simulação (SMS recebido):
-                          </span>
-                          <span className="text-xl font-mono font-black text-[#2d3f65] tracking-widest block py-1">
-                            {simulatedMfaCode.slice(0, 3)} {simulatedMfaCode.slice(3)}
-                          </span>
-                          <span className="text-[9px] text-[#505f7c]">
-                            Expira em <strong>{countdown}s</strong>
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <span className="block text-[10px] uppercase font-bold text-emerald-800">
-                          🔐 CÓDIGO DE CONFIRMAÇÃO ENVIADO
-                        </span>
-                        <p className="text-[11px] text-[#2d3f65] font-medium leading-relaxed">
-                          {mfaSentNotification}
-                        </p>
-                        <p className="text-[10px] text-zinc-500 leading-none">
-                          Expira em <strong>{countdown}s</strong>
-                        </p>
-                      </>
-                    )}
+                    <span className="block text-[10px] uppercase font-bold text-emerald-800">
+                      🔐 CÓDIGO DE CONFIRMAÇÃO ENVIADO
+                    </span>
+                    <p className="text-[11px] text-[#2d3f65] font-medium leading-relaxed">
+                      {mfaSentNotification}
+                    </p>
+                    <p className="text-[10px] text-zinc-500 leading-none">
+                      Expira em <strong>{countdown}s</strong>
+                    </p>
                   </div>
                 )}
               </div>
