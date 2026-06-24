@@ -857,13 +857,16 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
       delete secureContent.candidacies;
 
       // Para evitar estourar a cota de 5MB do LocalStorage do navegador (QuotaExceededError),
-      // removemos a biblioteca de mídias pesada (uploadedFiles) da cópia local.
-      // O conteúdo completo com as mídias continuará sendo salvo no banco Supabase.
+      // removemos a biblioteca de mídias pesada (uploadedFiles) da cópia local do site_content,
+      // mas salvamos a biblioteca de mídias em uma chave separada no LocalStorage ('motriz_uploaded_files').
       const localStorageContent = { ...secureContent };
       delete localStorageContent.uploadedFiles;
 
       try {
         localStorage.setItem('motriz_landing_content', JSON.stringify(localStorageContent));
+        if (secureContent.uploadedFiles) {
+          localStorage.setItem('motriz_uploaded_files', JSON.stringify(secureContent.uploadedFiles));
+        }
       } catch (lsErr) {
         console.warn('Erro ao salvar no LocalStorage (limite excedido), salvando no banco:', lsErr);
       }
@@ -945,6 +948,9 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
         delete localStorageParsed.uploadedFiles;
         try {
           localStorage.setItem('motriz_landing_content', JSON.stringify(localStorageParsed));
+          if (parsed.uploadedFiles) {
+            localStorage.setItem('motriz_uploaded_files', JSON.stringify(parsed.uploadedFiles));
+          }
         } catch (lsErr) {
           console.warn('Erro ao salvar importação no LocalStorage:', lsErr);
         }

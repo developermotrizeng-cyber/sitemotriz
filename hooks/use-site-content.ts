@@ -89,8 +89,16 @@ export function useSiteContent() {
     // 1. Load from localStorage immediately on mount
     try {
       const persisted = localStorage.getItem('motriz_landing_content');
+      const persistedFiles = localStorage.getItem('motriz_uploaded_files');
       if (persisted && active) {
         const parsed = JSON.parse(persisted);
+        if (persistedFiles) {
+          try {
+            parsed.uploadedFiles = JSON.parse(persistedFiles);
+          } catch (e) {
+            console.warn('Erro ao parsear arquivos do localStorage', e);
+          }
+        }
         setSiteContent(mergeContent(parsed));
       }
     } catch (e) {
@@ -125,8 +133,10 @@ export function useSiteContent() {
               const secureContent = { ...data.content };
               delete secureContent.smtp;
               delete secureContent.candidacies;
+              const filesToSave = secureContent.uploadedFiles || [];
               delete secureContent.uploadedFiles;
               localStorage.setItem('motriz_landing_content', JSON.stringify(secureContent));
+              localStorage.setItem('motriz_uploaded_files', JSON.stringify(filesToSave));
             } catch (lsErr) {
               console.warn('Erro ao salvar no LocalStorage após fetch remoto:', lsErr);
             }

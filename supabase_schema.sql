@@ -110,6 +110,11 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('resumes', 'resumes', true)
 ON CONFLICT (id) DO NOTHING;
 
+-- Criar o bucket 'media' se não existir
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('media', 'media', true)
+ON CONFLICT (id) DO NOTHING;
+
 -- Garantir que as políticas para storage.objects existam
 -- 1. Permitir inserção de arquivos de forma pública no bucket resumes
 DROP POLICY IF EXISTS "Permitir upload publico de curriculos" ON storage.objects;
@@ -124,6 +129,20 @@ CREATE POLICY "Permitir leitura publica de curriculos"
 ON storage.objects FOR SELECT 
 TO public 
 USING (bucket_id = 'resumes');
+
+-- 3. Permitir inserção de arquivos de forma pública no bucket media
+DROP POLICY IF EXISTS "Permitir upload publico de midias" ON storage.objects;
+CREATE POLICY "Permitir upload publico de midias" 
+ON storage.objects FOR INSERT 
+TO public 
+WITH CHECK (bucket_id = 'media');
+
+-- 4. Permitir leitura pública de arquivos no bucket media
+DROP POLICY IF EXISTS "Permitir leitura publica de midias" ON storage.objects;
+CREATE POLICY "Permitir leitura publica de midias" 
+ON storage.objects FOR SELECT 
+TO public 
+USING (bucket_id = 'media');
 
 
 -- =====================================================================
