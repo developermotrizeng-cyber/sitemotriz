@@ -787,7 +787,7 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
     }
   };
 
-  const handleRequestPasswordReset = (e: React.FormEvent) => {
+  const handleRequestPasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setForgotSuccessMessage('');
     setAuthError('');
@@ -803,7 +803,32 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
       return;
     }
 
-    setForgotSuccessMessage(`Link de redefinição enviado com sucesso para ${forgotEmail}! Caso não encontre em 5 minutos, cheque o lixo eletrônico.`);
+    setIsVerifyingPassword(true);
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          nome: 'Suporte Motriz Engenharia',
+          email: forgotEmail.trim(),
+          tipoProjeto: 'Recuperação de Acesso',
+          mensagem: `Olá, ${matched.name || 'Colaborador'}.\n\nVocê solicitou a recuperação de acesso ao Painel de Manutenção da Motriz Engenharia.\n\nPara acessar o sistema, utilize o seu e-mail de colaborador cadastrado e a senha de segurança corporativa fornecida pela diretoria/administração master.\n\nCaso tenha esquecido a senha corporativa, entre em contato diretamente com a equipe de TI ou o Administrador Master.\n\nAtenciosamente,\nEquipe de TI Motriz Engenharia`
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData?.error || 'Erro ao enviar e-mail de redefinição.');
+      }
+
+      setForgotSuccessMessage(`Link de redefinição enviado com sucesso para ${forgotEmail}! Caso não encontre em 5 minutos, cheque o lixo eletrônico.`);
+    } catch (err: any) {
+      setAuthError(err.message || 'Falha ao processar solicitação de redefinição. Tente novamente mais tarde.');
+    } finally {
+      setIsVerifyingPassword(false);
+    }
   };
 
   // Generic update helper
@@ -1147,20 +1172,22 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                 )}
 
                 {forgotSuccessMessage && (
-                  <div className="p-4 bg-green-50 text-green-800 text-xs font-medium rounded border border-green-200 space-y-2">
+                  <div className="p-4 bg-green-50 text-green-800 text-xs font-medium rounded border border-green-200">
                     <p className="font-semibold">{forgotSuccessMessage}</p>
-                    <p className="text-[11px] text-green-700 font-mono bg-white p-2 rounded border border-green-100">
-                      [SIMULADOR] Simulação de envio completada com sucesso. Você pode voltar ao login e usar a senha mestra para testar.
-                    </p>
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-[#2d3f65] hover:bg-[#45567e] text-white py-3 font-sans text-xs font-bold tracking-widest transition-all rounded"
+                  disabled={isVerifyingPassword}
+                  className="w-full flex items-center justify-center gap-2 bg-[#2d3f65] hover:bg-[#45567e] text-white py-3.5 font-sans text-xs font-bold tracking-widest transition-all rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  <Mail className="h-4 w-4" />
-                  <span>SOLICITAR INSTRUÇÕES</span>
+                  {isVerifyingPassword ? (
+                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4" />
+                  )}
+                  <span>{isVerifyingPassword ? 'ENVIANDO...' : 'SOLICITAR INSTRUÇÕES'}</span>
                 </button>
               </form>
 
