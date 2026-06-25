@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Briefcase, 
   User, 
@@ -33,7 +34,8 @@ function dataURLtoBlob(dataurl: string) {
   return new Blob([u8arr], { type: mime });
 }
 
-export default function TrabalheConoscoPage() {
+export default function CareersPage() {
+  const router = useRouter();
   const { siteContent, setSiteContent, isMounted } = useSiteContent();
 
   const [formData, setFormData] = useState({
@@ -244,7 +246,7 @@ export default function TrabalheConoscoPage() {
   };
 
   const handleScrollToSection = (sectionId: string) => {
-    window.location.href = `/#${sectionId}`;
+    router.push(`/#${sectionId}`);
   };
 
   if (!isMounted) {
@@ -265,7 +267,7 @@ export default function TrabalheConoscoPage() {
       <Header 
         content={siteContent.header}
         specialties={siteContent.specialties}
-        onOpenAdmin={() => { window.location.href = '/?admin=true'; }}
+        onOpenAdmin={() => { router.push('/?admin=true'); }}
         isAdminActive={false}
         onScrollToSection={handleScrollToSection}
         onSelectSpecialty={() => {}}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
   ArrowUpRight, 
@@ -15,6 +16,7 @@ import ProjectDetailModal, { getProjectDetails, getProjectImages } from '../../c
 import { useSiteContent } from '../../hooks/use-site-content';
 
 export default function PortfolioPage() {
+  const router = useRouter();
   const { siteContent, isMounted } = useSiteContent();
   const [filter, setFilter] = useState<string>('TODOS');
 
@@ -52,7 +54,7 @@ export default function PortfolioPage() {
 
   // Handle header smooth scroll routing back to home page hash
   const handleScrollToSection = (sectionId: string) => {
-    window.location.href = `/#${sectionId}`;
+    router.push(`/#${sectionId}`);
   };
 
   const items = siteContent.portfolio.items || [];
@@ -71,7 +73,7 @@ export default function PortfolioPage() {
       <Header 
         content={siteContent.header}
         specialties={siteContent.specialties}
-        onOpenAdmin={() => { window.location.href = '/?admin=true'; }}
+        onOpenAdmin={() => { router.push('/?admin=true'); }}
         isAdminActive={false}
         onScrollToSection={handleScrollToSection}
         onSelectSpecialty={() => {}}

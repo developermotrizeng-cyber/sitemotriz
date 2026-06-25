@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { SiteContent } from '../lib/defaultData';
 import ProjectDetailModal, { getProjectImages } from './ProjectDetailModal';
 
@@ -11,6 +12,7 @@ interface PortfolioProps {
 }
 
 export default function Portfolio({ content, onProjectClick }: PortfolioProps) {
+  const router = useRouter();
   const [filter, setFilter] = useState<string>('TODOS');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
@@ -237,7 +239,7 @@ export default function Portfolio({ content, onProjectClick }: PortfolioProps) {
           <button
             type="button"
             onClick={() => {
-              window.location.href = '/portfolio';
+              router.push('/portfolio');
             }}
             className="inline-flex items-center gap-2 border-2 border-[#2d3f65] hover:bg-[#2d3f65] hover:text-white text-[#2d3f65] bg-white font-sans text-xs font-bold tracking-widest px-8 py-3.5 rounded transition-all duration-300 cursor-pointer uppercase"
           >
