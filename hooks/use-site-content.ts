@@ -86,48 +86,31 @@ export function useSiteContent() {
   useEffect(() => {
     let active = true;
 
-    // 1. Load from localStorage immediately on mount
-    try {
-      const persisted = localStorage.getItem('motriz_landing_content');
-      const persistedFiles = localStorage.getItem('motriz_uploaded_files');
-      if (persisted && active) {
-        const parsed = JSON.parse(persisted);
-        if (persistedFiles) {
-          try {
-            parsed.uploadedFiles = JSON.parse(persistedFiles);
-          } catch (e) {
-            console.warn('Erro ao parsear arquivos do localStorage', e);
-          }
-        }
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSiteContent(mergeContent(parsed));
-      }
-    } catch (e) {
-      console.warn('Erro ao carregar do localStorage no início.', e);
-    }
-    
-    // Safety timeout to force mount after 1.5 seconds if Supabase query is slow
-    const mountTimeout = setTimeout(() => {
-      if (active) {
-        setIsMounted(true);
-      }
-    }, 1500);
-
-    // 2. Fetch the latest content from Supabase in the background
     async function loadContentRemote() {
+      let fetchedFromRemote = false;
+
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase
+          const fetchPromise = supabase
             .from('site_content')
             .select('content')
             .eq('id', 'motriz_landing_content')
             .maybeSingle();
+            
+          // Fallback timeout of 8 seconds to prevent infinite spinner
+          const timeoutPromise = new Promise((resolve) => 
+            setTimeout(() => resolve({ error: new Error('Timeout fetching from Supabase') }), 8000)
+          );
+
+          const { data, error } = (await Promise.race([fetchPromise, timeoutPromise])) as any;
 
           if (error) {
-            console.warn('Erro ao carregar do Supabase em segundo plano:', error);
+            console.warn('Erro ao carregar do Supabase:', error);
           } else if (data && data.content && active) {
+            fetchedFromRemote = true;
             // Only update active state if the user hasn't made edits in the current session
             if (!hasUpdatedRef.current) {
+              // eslint-disable-next-line react-hooks/set-state-in-effect
               setSiteContent(mergeContent(data.content));
             }
             
@@ -146,15 +129,35 @@ export function useSiteContent() {
           }
         } catch (supErr) {
           console.warn('Falha na requisição em segundo plano do Supabase:', supErr);
-        } finally {
-          if (active) {
-            setIsMounted(true);
+        }
+      }
+
+      // If remote failed or wasn't configured, fallback to localStorage
+      if (!fetchedFromRemote && active) {
+        try {
+          const persisted = localStorage.getItem('motriz_landing_content');
+          const persistedFiles = localStorage.getItem('motriz_uploaded_files');
+          if (persisted) {
+            const parsed = JSON.parse(persisted);
+            if (persistedFiles) {
+              try {
+                parsed.uploadedFiles = JSON.parse(persistedFiles);
+              } catch (e) {
+                console.warn('Erro ao parsear arquivos do localStorage', e);
+              }
+            }
+            if (!hasUpdatedRef.current) {
+              // eslint-disable-next-line react-hooks/set-state-in-effect
+              setSiteContent(mergeContent(parsed));
+            }
           }
+        } catch (e) {
+          console.warn('Erro ao carregar do localStorage no fallback.', e);
         }
-      } else {
-        if (active) {
-          setIsMounted(true);
-        }
+      }
+
+      if (active) {
+        setIsMounted(true);
       }
     }
 
@@ -162,7 +165,6 @@ export function useSiteContent() {
 
     return () => {
       active = false;
-      clearTimeout(mountTimeout);
     };
   }, []);
 
