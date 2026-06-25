@@ -78,6 +78,17 @@ export default function Home() {
     );
   }
 
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-[#fcf9f8] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="h-8 w-8 border-4 border-[#2d3f65] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="font-sans text-xs font-bold text-[#505f7c] tracking-widest uppercase">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Live Landing Page rendering view
   return (
     <main className="min-h-screen flex flex-col scroll-smooth">

@@ -106,10 +106,24 @@ export function useSiteContent() {
       console.warn('Erro ao carregar do localStorage no início.', e);
     }
     
-    // Set isMounted to true immediately so pages render without waiting for Supabase query
-    if (active) {
+    // If we have cached content in localStorage, mount immediately to show it
+    let hasCache = false;
+    try {
+      if (localStorage.getItem('motriz_landing_content')) {
+        hasCache = true;
+      }
+    } catch (e) {}
+
+    if (active && hasCache) {
       setIsMounted(true);
     }
+
+    // Safety timeout to force mount after 1.5 seconds if Supabase query is slow
+    const mountTimeout = setTimeout(() => {
+      if (active) {
+        setIsMounted(true);
+      }
+    }, 1500);
 
     // 2. Fetch the latest content from Supabase in the background
     async function loadContentRemote() {
@@ -144,6 +158,14 @@ export function useSiteContent() {
           }
         } catch (supErr) {
           console.warn('Falha na requisição em segundo plano do Supabase:', supErr);
+        } finally {
+          if (active) {
+            setIsMounted(true);
+          }
+        }
+      } else {
+        if (active) {
+          setIsMounted(true);
         }
       }
     }
@@ -152,6 +174,7 @@ export function useSiteContent() {
 
     return () => {
       active = false;
+      clearTimeout(mountTimeout);
     };
   }, []);
 
