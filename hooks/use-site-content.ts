@@ -106,18 +106,6 @@ export function useSiteContent() {
       console.warn('Erro ao carregar do localStorage no início.', e);
     }
     
-    // If we have cached content in localStorage, mount immediately to show it
-    let hasCache = false;
-    try {
-      if (localStorage.getItem('motriz_landing_content')) {
-        hasCache = true;
-      }
-    } catch (e) {}
-
-    if (active && hasCache) {
-      setIsMounted(true);
-    }
-
     // Safety timeout to force mount after 1.5 seconds if Supabase query is slow
     const mountTimeout = setTimeout(() => {
       if (active) {
