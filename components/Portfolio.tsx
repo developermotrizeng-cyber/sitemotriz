@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SiteContent } from '../lib/defaultData';
-import ProjectDetailModal from './ProjectDetailModal';
+import ProjectDetailModal, { getProjectImages } from './ProjectDetailModal';
 
 interface PortfolioProps {
   content: SiteContent['portfolio'];
@@ -13,6 +13,9 @@ interface PortfolioProps {
 export default function Portfolio({ content, onProjectClick }: PortfolioProps) {
   const [filter, setFilter] = useState<string>('TODOS');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Card Image navigation state
+  const [cardImageIndices, setCardImageIndices] = useState<Record<string, number>>({});
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -116,32 +119,72 @@ export default function Portfolio({ content, onProjectClick }: PortfolioProps) {
               msOverflowStyle: 'none'
             }}
           >
-            {filteredItems && filteredItems.map((project) => (
-              <div 
-                key={project.id}
-                onClick={() => {
-                  setActiveProject(project);
-                  setModalImageIdx(0);
-                  setIsModalOpen(true);
-                  onProjectClick(project.title);
-                }}
-                className="snap-start shrink-0 w-[290px] sm:w-[330px] group cursor-pointer bg-white border border-[#E2E8F0] overflow-hidden rounded hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-                id={`project-card-${project.id}`}
-              >
-                <div>
-                  {/* Outer image wrap */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#e5e2e1]">
-                    <img 
-                      src={project.image || "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80"} 
-                      alt={project.title}
-                      className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 justify-between text-white animate-fade-in">
-                      <span className="font-sans text-xs font-bold tracking-wide uppercase">Visualizar Detalhes Completos</span>
-                      <ArrowUpRight className="h-4 w-4" />
+            {filteredItems && filteredItems.map((project) => {
+              const images = getProjectImages(project);
+              const activeIdx = cardImageIndices[project.id] || 0;
+              const currentImg = images[activeIdx] || project.image;
+              
+              return (
+                <div 
+                  key={project.id}
+                  onClick={() => {
+                    setActiveProject(project);
+                    setModalImageIdx(activeIdx);
+                    setIsModalOpen(true);
+                    onProjectClick(project.title);
+                  }}
+                  className="snap-start shrink-0 w-[290px] sm:w-[330px] group cursor-pointer bg-white border border-[#E2E8F0] overflow-hidden rounded hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                  id={`project-card-${project.id}`}
+                >
+                  <div>
+                    {/* Outer image wrap */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#e5e2e1] group/image">
+                      <img 
+                        src={currentImg || "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80"} 
+                        alt={project.title}
+                        className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                        referrerPolicy="no-referrer"
+                      />
+                      
+                      {/* Card Image Navigation Arrows */}
+                      {images.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const nextIdx = activeIdx === 0 ? images.length - 1 : activeIdx - 1;
+                              setCardImageIndices(prev => ({ ...prev, [project.id]: nextIdx }));
+                            }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-[#2d3f65] text-white p-1.5 rounded-full transition-all cursor-pointer z-10 opacity-0 group-hover/image:opacity-100 flex items-center justify-center"
+                            title="Imagem anterior"
+                          >
+                            <ChevronLeft className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const nextIdx = activeIdx === images.length - 1 ? 0 : activeIdx + 1;
+                              setCardImageIndices(prev => ({ ...prev, [project.id]: nextIdx }));
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-[#2d3f65] text-white p-1.5 rounded-full transition-all cursor-pointer z-10 opacity-0 group-hover/image:opacity-100 flex items-center justify-center"
+                            title="Próxima imagem"
+                          >
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          </button>
+                          {/* Floating indicator */}
+                          <div className="absolute bottom-2 right-2 bg-[#2d3f65]/90 text-white text-[9px] font-sans font-bold px-2 py-0.5 rounded z-10 shadow-sm">
+                            {activeIdx + 1} / {images.length}
+                          </div>
+                        </>
+                      )}
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 justify-between text-white animate-fade-in">
+                        <span className="font-sans text-xs font-bold tracking-wide uppercase">Visualizar Detalhes Completos</span>
+                        <ArrowUpRight className="h-4 w-4" />
+                      </div>
                     </div>
-                  </div>
 
                   {/* Text content area */}
                   <div className="p-5 space-y-2">
@@ -161,7 +204,7 @@ export default function Portfolio({ content, onProjectClick }: PortfolioProps) {
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveProject(project);
-                      setModalImageIdx(0);
+                      setModalImageIdx(activeIdx);
                       setIsModalOpen(true);
                       onProjectClick(project.title);
                     }}
@@ -172,7 +215,8 @@ export default function Portfolio({ content, onProjectClick }: PortfolioProps) {
                   </button>
                 </div>
               </div>
-            ))}
+            );
+          })}`
 
             {(!filteredItems || filteredItems.length === 0) && (
               <div className="w-full text-center py-16 text-[#505f7c]">

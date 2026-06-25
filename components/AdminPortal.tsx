@@ -3028,6 +3028,28 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                     />
                   </div>
 
+                  {/* Multiple Images Array editing */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-[#2d3f65] block font-bold">URLs de Múltiplas Imagens para Galeria (uma por linha)</label>
+                    <p className="text-[9px] text-zinc-500">Links para fotos no carrossel lateral. Deixe cada link em uma linha de texto.</p>
+                    <textarea 
+                      rows={3}
+                      placeholder="Insira as URLs das fotos, uma por linha..."
+                      value={Array.isArray(editingProjData.images) ? editingProjData.images.join('\n') : (editingProjData.image ? [editingProjData.image].join('\n') : '')}
+                      onChange={(e) => {
+                        const lines = e.target.value.split('\n').map(l => l.trim()).filter(Boolean);
+                        setEditingProjData((prev: any) => ({ ...prev, images: lines }));
+                      }}
+                      className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none font-mono"
+                    />
+                    <MultipleImageSelector 
+                      files={content.uploadedFiles || []} 
+                      values={Array.isArray(editingProjData.images) ? editingProjData.images : (editingProjData.image ? [editingProjData.image] : [])} 
+                      onChange={(val) => setEditingProjData((prev: any) => ({ ...prev, images: val }))}
+                      label="Gerenciar URLs com imagens carregadas"
+                    />
+                  </div>
+
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase font-bold text-zinc-500">Memorial Técnico & Descrição Executiva</label>
                     <textarea 
@@ -3119,6 +3141,28 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                       label="Ou selecione um arquivo carregado:" 
                     />
                     <span className="text-[9px] text-[#505f7c] block mt-0.5">Deixe em branco para utilizar uma imagem genérica fotorealista profissional padrão.</span>
+                  </div>
+
+                  {/* Multiple Images Array editing */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-[#2d3f65] block font-bold">URLs de Múltiplas Imagens para Galeria (uma por linha)</label>
+                    <p className="text-[9px] text-zinc-500">Links para fotos no carrossel lateral. Deixe cada link em uma linha de texto.</p>
+                    <textarea 
+                      rows={3}
+                      placeholder="Insira as URLs das fotos, uma por linha..."
+                      value={Array.isArray(newProj.images) ? newProj.images.join('\n') : (newProj.image ? [newProj.image].join('\n') : '')}
+                      onChange={(e) => {
+                        const lines = e.target.value.split('\n').map(l => l.trim()).filter(Boolean);
+                        setNewProj(prev => ({ ...prev, images: lines }));
+                      }}
+                      className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none font-mono"
+                    />
+                    <MultipleImageSelector 
+                      files={content.uploadedFiles || []} 
+                      values={Array.isArray(newProj.images) ? newProj.images : (newProj.image ? [newProj.image] : [])} 
+                      onChange={(val) => setNewProj(prev => ({ ...prev, images: val }))}
+                      label="Gerenciar URLs com imagens carregadas"
+                    />
                   </div>
 
                   <div className="space-y-1">

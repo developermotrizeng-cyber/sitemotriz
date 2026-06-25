@@ -5,16 +5,21 @@ import Link from 'next/link';
 import { 
   ArrowLeft, 
   ArrowUpRight, 
-  FolderOpen 
+  FolderOpen,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ProjectDetailModal, { getProjectDetails } from '../../components/ProjectDetailModal';
+import ProjectDetailModal, { getProjectDetails, getProjectImages } from '../../components/ProjectDetailModal';
 import { useSiteContent } from '../../hooks/use-site-content';
 
 export default function PortfolioPage() {
   const { siteContent, isMounted } = useSiteContent();
   const [filter, setFilter] = useState<string>('TODOS');
+
+  // Card Image navigation state
+  const [cardImageIndices, setCardImageIndices] = useState<Record<string, number>>({});
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -129,55 +134,96 @@ export default function PortfolioPage() {
 
           {/* Grid Layout of Items */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredItems.map((project) => (
-              <div 
-                key={project.id}
-                onClick={() => {
-                  setActiveProject(project);
-                  setModalImageIdx(0);
-                  setIsModalOpen(true);
-                }}
-                className="bg-white rounded-lg border border-[#E2E8F0] overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between"
-                id={`grid-project-card-${project.id}`}
-              >
-                <div>
-                  {/* Aspect ratio frame preview image */}
-                  <div className="relative aspect-[16/11] w-full overflow-hidden bg-zinc-100">
-                    <img 
-                      src={project.image || "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80"} 
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 justify-between text-white">
-                      <span className="font-body text-xs font-semibold tracking-wide">Inspecionar Projeto</span>
-                      <ArrowUpRight className="h-4 w-4" />
+            {filteredItems.map((project) => {
+              const images = getProjectImages(project);
+              const activeIdx = cardImageIndices[project.id] || 0;
+              const currentImg = images[activeIdx] || project.image;
+
+              return (
+                <div 
+                  key={project.id}
+                  onClick={() => {
+                    setActiveProject(project);
+                    setModalImageIdx(activeIdx);
+                    setIsModalOpen(true);
+                  }}
+                  className="bg-white rounded-lg border border-[#E2E8F0] overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between"
+                  id={`grid-project-card-${project.id}`}
+                >
+                  <div>
+                    {/* Aspect ratio frame preview image */}
+                    <div className="relative aspect-[16/11] w-full overflow-hidden bg-zinc-100 group/image">
+                      <img 
+                        src={currentImg || "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80"} 
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        referrerPolicy="no-referrer"
+                      />
+                      
+                      {/* Card Image Navigation Arrows */}
+                      {images.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const nextIdx = activeIdx === 0 ? images.length - 1 : activeIdx - 1;
+                              setCardImageIndices(prev => ({ ...prev, [project.id]: nextIdx }));
+                            }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-[#2d3f65] text-white p-1.5 rounded-full transition-all cursor-pointer z-10 opacity-0 group-hover/image:opacity-100 flex items-center justify-center"
+                            title="Imagem anterior"
+                          >
+                            <ChevronLeft className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const nextIdx = activeIdx === images.length - 1 ? 0 : activeIdx + 1;
+                              setCardImageIndices(prev => ({ ...prev, [project.id]: nextIdx }));
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-[#2d3f65] text-white p-1.5 rounded-full transition-all cursor-pointer z-10 opacity-0 group-hover/image:opacity-100 flex items-center justify-center"
+                            title="Próxima imagem"
+                          >
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          </button>
+                          {/* Floating indicator */}
+                          <div className="absolute bottom-2 right-2 bg-[#2d3f65]/90 text-white text-[9px] font-sans font-bold px-2 py-0.5 rounded z-10 shadow-sm">
+                            {activeIdx + 1} / {images.length}
+                          </div>
+                        </>
+                      )}
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 justify-between text-white">
+                        <span className="font-body text-xs font-semibold tracking-wide">Inspecionar Projeto</span>
+                        <ArrowUpRight className="h-4 w-4" />
+                      </div>
+                    </div>
+
+                    {/* Body text details */}
+                    <div className="p-6 space-y-2">
+                      <span className="text-[9px] font-sans font-extrabold tracking-widest text-[#505f7c] uppercase bg-zinc-100 px-2 py-1 rounded">
+                        {project.category}
+                      </span>
+                      <h3 className="font-sans text-base font-extrabold text-[#2d3f65] tracking-tight group-hover:text-[#45567e] transition-colors pt-2 h-auto line-clamp-2">
+                        {project.title}
+                      </h3>
+                      <p className="font-body text-xs text-zinc-500 leading-relaxed line-clamp-3">
+                        {getProjectDetails(project).substring(0, 140)}...
+                      </p>
                     </div>
                   </div>
 
-                  {/* Body text details */}
-                  <div className="p-6 space-y-2">
-                    <span className="text-[9px] font-sans font-extrabold tracking-widest text-[#505f7c] uppercase bg-zinc-100 px-2 py-1 rounded">
-                      {project.category}
+                  {/* Footer details button trigger link */}
+                  <div className="px-6 pb-6 pt-2">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-sans font-extrabold tracking-wider text-[#2d3f65] border-b-2 border-transparent group-hover:border-[#bbccfb] transition-all uppercase">
+                      <span>Ver detalhes completos</span>
+                      <ArrowUpRight className="h-3 w-3" />
                     </span>
-                    <h3 className="font-sans text-base font-extrabold text-[#2d3f65] tracking-tight group-hover:text-[#45567e] transition-colors pt-2 h-auto line-clamp-2">
-                      {project.title}
-                    </h3>
-                    <p className="font-body text-xs text-zinc-500 leading-relaxed line-clamp-3">
-                      {getProjectDetails(project).substring(0, 140)}...
-                    </p>
                   </div>
                 </div>
-
-                {/* Footer details button trigger link */}
-                <div className="px-6 pb-6 pt-2">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-sans font-extrabold tracking-wider text-[#2d3f65] border-b-2 border-transparent group-hover:border-[#bbccfb] transition-all uppercase">
-                    <span>Ver detalhes completos</span>
-                    <ArrowUpRight className="h-3 w-3" />
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
             {filteredItems.length === 0 && (
               <div className="col-span-full text-center py-24 bg-white rounded-lg border border-dashed border-zinc-200">
