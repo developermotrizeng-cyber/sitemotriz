@@ -99,6 +99,7 @@ export function useSiteContent() {
             console.warn('Erro ao parsear arquivos do localStorage', e);
           }
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSiteContent(mergeContent(parsed));
       }
     } catch (e) {

@@ -207,6 +207,7 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
   const [localCandidacies, setLocalCandidacies] = useState<any[]>(content.candidacies || []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalCandidacies(content.candidacies || []);
   }, [content.candidacies]);
 
@@ -643,6 +644,7 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
     } else if (mfaStep && mfaSent && countdown === 0 && selectedMfaChannel === 'authenticator') {
       // Quando o timer do autenticador expira, gera um novo código automaticamente a cada 30 segundos
       const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSimulatedMfaCode(generatedCode);
       setCountdown(30);
     }

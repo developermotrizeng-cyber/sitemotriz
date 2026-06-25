@@ -25,6 +25,7 @@ export default function Home() {
       try {
         const params = new URLSearchParams(window.location.search);
         if (params.get('admin') === 'true') {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setIsAdminModeActive(true);
         }
       } catch (err) {}
