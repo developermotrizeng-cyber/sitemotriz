@@ -68,23 +68,47 @@ function mergeContent(parsed: any): SiteContent {
   };
 }
 
+// Variáveis globais para cache em memória na mesma sessão
+let globalSiteContentCache: SiteContent | null = null;
+let globalFetchPromise: Promise<void> | null = null;
+
 /**
  * Hook reutilizável para carregar e sincronizar o conteúdo do site
  * a partir do Supabase ou localStorage (fallback).
  */
 export function useSiteContent() {
-  const [siteContent, setSiteContent] = useState<SiteContent>(defaultSiteContent);
-  const [isMounted, setIsMounted] = useState(false);
+  const [siteContent, setSiteContent] = useState<SiteContent>(
+    globalSiteContentCache || defaultSiteContent
+  );
+  // Se já tivermos no cache de memória, não precisamos mostrar loading
+  const [isMounted, setIsMounted] = useState(!!globalSiteContentCache);
   const hasUpdatedRef = useRef(false);
 
   // Wrap setSiteContent to detect when the state is modified by the admin
   const setSiteContentExternal = useCallback((newContent: SiteContent | ((prev: SiteContent) => SiteContent)) => {
     hasUpdatedRef.current = true;
-    setSiteContent(newContent);
+    
+    // Atualiza o cache global também
+    if (typeof newContent === 'function') {
+      setSiteContent((prev) => {
+        const nextContent = newContent(prev);
+        globalSiteContentCache = nextContent;
+        return nextContent;
+      });
+    } else {
+      globalSiteContentCache = newContent;
+      setSiteContent(newContent);
+    }
   }, []);
 
   useEffect(() => {
     let active = true;
+
+    // Se já carregou nesta sessão, termina imediatamente
+    if (globalSiteContentCache) {
+      if (!isMounted) setIsMounted(true);
+      return;
+    }
 
     async function loadContentRemote() {
       let fetchedFromRemote = false;
@@ -108,10 +132,13 @@ export function useSiteContent() {
             console.warn('Erro ao carregar do Supabase:', error);
           } else if (data && data.content && active) {
             fetchedFromRemote = true;
+            const newContent = mergeContent(data.content);
+            globalSiteContentCache = newContent;
+
             // Only update active state if the user hasn't made edits in the current session
             if (!hasUpdatedRef.current) {
               // eslint-disable-next-line react-hooks/set-state-in-effect
-              setSiteContent(mergeContent(data.content));
+              setSiteContent(newContent);
             }
             
             // Always update localStorage cache for the next reload
@@ -146,9 +173,12 @@ export function useSiteContent() {
                 console.warn('Erro ao parsear arquivos do localStorage', e);
               }
             }
+            const fallbackContent = mergeContent(parsed);
+            globalSiteContentCache = fallbackContent;
+
             if (!hasUpdatedRef.current) {
               // eslint-disable-next-line react-hooks/set-state-in-effect
-              setSiteContent(mergeContent(parsed));
+              setSiteContent(fallbackContent);
             }
           }
         } catch (e) {
@@ -161,12 +191,22 @@ export function useSiteContent() {
       }
     }
 
-    loadContentRemote();
+    if (!globalFetchPromise) {
+      globalFetchPromise = loadContentRemote();
+    } else {
+      // Aguarda a promessa global terminar se já estiver carregando em outra aba/componente
+      globalFetchPromise.then(() => {
+        if (active && globalSiteContentCache && !hasUpdatedRef.current) {
+          setSiteContent(globalSiteContentCache);
+          setIsMounted(true);
+        }
+      });
+    }
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [isMounted]);
 
   return { siteContent, setSiteContent: setSiteContentExternal, isMounted };
 }
