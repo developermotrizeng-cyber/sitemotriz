@@ -110,34 +110,36 @@ export function useSiteContent() {
       return;
     }
 
-    // Tenta carregar do localStorage imediatamente para não bloquear a UI
-    try {
-      const persisted = localStorage.getItem('motriz_landing_content');
-      const persistedFiles = localStorage.getItem('motriz_uploaded_files');
-      if (persisted) {
-        const parsed = JSON.parse(persisted);
-        if (persistedFiles) {
-          try {
-            parsed.uploadedFiles = JSON.parse(persistedFiles);
-          } catch (e) {
-            console.warn('Erro ao parsear arquivos do localStorage', e);
+    // Criamos um timeout para carregar o LocalStorage se o Supabase demorar mais de 1.5 segundos
+    const fallbackTimeout = setTimeout(() => {
+      if (!active) return;
+      console.log('Supabase demorou mais de 1.5s. Usando LocalStorage/dados locais como fallback...');
+      try {
+        const persisted = localStorage.getItem('motriz_landing_content');
+        const persistedFiles = localStorage.getItem('motriz_uploaded_files');
+        if (persisted) {
+          const parsed = JSON.parse(persisted);
+          if (persistedFiles) {
+            try {
+              parsed.uploadedFiles = JSON.parse(persistedFiles);
+            } catch (e) {
+              console.warn('Erro ao parsear arquivos do localStorage', e);
+            }
+          }
+          const fallbackContent = mergeContent(parsed);
+          globalSiteContentCache = fallbackContent;
+
+          if (!hasUpdatedRef.current) {
+            setSiteContent(fallbackContent);
           }
         }
-        const fallbackContent = mergeContent(parsed);
-        globalSiteContentCache = fallbackContent;
-
-        if (!hasUpdatedRef.current) {
-          setSiteContent(fallbackContent);
-        }
+      } catch (e) {
+        console.warn('Erro ao carregar do localStorage no fallback.', e);
       }
-    } catch (e) {
-      console.warn('Erro ao carregar do localStorage no fallback.', e);
-    }
 
-    // Libera a UI imediatamente (com dados do localStorage ou os defaults)
-    if (active) {
+      // Libera a UI com dados locais
       setIsMounted(true);
-    }
+    }, 1500);
 
     async function loadContentRemote() {
       let fetchedFromRemote = false;
@@ -150,9 +152,9 @@ export function useSiteContent() {
             .eq('id', 'motriz_landing_content')
             .maybeSingle();
             
-          // Fallback timeout of 8 seconds to prevent infinite spinner
+          // Fallback timeout de 8 segundos para evitar spinner infinito caso o Supabase caia totalmente
           const timeoutPromise = new Promise((resolve) => 
-            setTimeout(() => resolve({ error: new Error('Timeout fetching from Supabase') }), 8000)
+            setTimeout(() => resolve({ error: new Error('Timeout') }), 8000)
           );
 
           const { data, error } = (await Promise.race([fetchPromise, timeoutPromise])) as any;
@@ -164,11 +166,16 @@ export function useSiteContent() {
             const newContent = mergeContent(data.content);
             globalSiteContentCache = newContent;
 
+            // Cancela o timeout do fallback para usar diretamente os dados frescos do Supabase
+            clearTimeout(fallbackTimeout);
+
             // Only update active state if the user hasn't made edits in the current session
             if (!hasUpdatedRef.current) {
-              // eslint-disable-next-line react-hooks/set-state-in-effect
               setSiteContent(newContent);
             }
+            
+            // Libera a tela com os dados atualizados
+            setIsMounted(true);
             
             // Always update localStorage cache for the next reload
             try {
@@ -182,10 +189,35 @@ export function useSiteContent() {
             } catch (lsErr) {
               console.warn('Erro ao salvar no LocalStorage após fetch remoto:', lsErr);
             }
+            return;
           }
         } catch (supErr) {
           console.warn('Falha na requisição em segundo plano do Supabase:', supErr);
         }
+      }
+
+      // Se falhar a conexão com o Supabase antes do timeout de 1.5s, força o fallback imediato
+      if (!fetchedFromRemote && active) {
+        clearTimeout(fallbackTimeout);
+        try {
+          const persisted = localStorage.getItem('motriz_landing_content');
+          const persistedFiles = localStorage.getItem('motriz_uploaded_files');
+          if (persisted) {
+            const parsed = JSON.parse(persisted);
+            if (persistedFiles) {
+              try {
+                parsed.uploadedFiles = JSON.parse(persistedFiles);
+              } catch (e) {}
+            }
+            const fallbackContent = mergeContent(parsed);
+            globalSiteContentCache = fallbackContent;
+
+            if (!hasUpdatedRef.current) {
+              setSiteContent(fallbackContent);
+            }
+          }
+        } catch (e) {}
+        setIsMounted(true);
       }
     }
 
@@ -194,14 +226,19 @@ export function useSiteContent() {
     } else {
       // Aguarda a promessa global terminar se já estiver carregando em outra aba/componente
       globalFetchPromise.then(() => {
-        if (active && globalSiteContentCache && !hasUpdatedRef.current) {
-          setSiteContent(globalSiteContentCache);
+        if (active) {
+          clearTimeout(fallbackTimeout);
+          if (globalSiteContentCache && !hasUpdatedRef.current) {
+            setSiteContent(globalSiteContentCache);
+          }
+          setIsMounted(true);
         }
       });
     }
 
     return () => {
       active = false;
+      clearTimeout(fallbackTimeout);
     };
   }, [isMounted]);
 

@@ -32,6 +32,7 @@ export const supabase = isSupabaseConfigured()
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
             return fetch(url, {
               ...options,
+              cache: 'no-store', // Garante que a Vercel/Next.js não cacheie os dados do banco
               signal: controller.signal,
             }).finally(() => clearTimeout(timeoutId));
           },
