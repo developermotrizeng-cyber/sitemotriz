@@ -110,6 +110,35 @@ export function useSiteContent() {
       return;
     }
 
+    // Tenta carregar do localStorage imediatamente para não bloquear a UI
+    try {
+      const persisted = localStorage.getItem('motriz_landing_content');
+      const persistedFiles = localStorage.getItem('motriz_uploaded_files');
+      if (persisted) {
+        const parsed = JSON.parse(persisted);
+        if (persistedFiles) {
+          try {
+            parsed.uploadedFiles = JSON.parse(persistedFiles);
+          } catch (e) {
+            console.warn('Erro ao parsear arquivos do localStorage', e);
+          }
+        }
+        const fallbackContent = mergeContent(parsed);
+        globalSiteContentCache = fallbackContent;
+
+        if (!hasUpdatedRef.current) {
+          setSiteContent(fallbackContent);
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar do localStorage no fallback.', e);
+    }
+
+    // Libera a UI imediatamente (com dados do localStorage ou os defaults)
+    if (active) {
+      setIsMounted(true);
+    }
+
     async function loadContentRemote() {
       let fetchedFromRemote = false;
 
@@ -158,37 +187,6 @@ export function useSiteContent() {
           console.warn('Falha na requisição em segundo plano do Supabase:', supErr);
         }
       }
-
-      // If remote failed or wasn't configured, fallback to localStorage
-      if (!fetchedFromRemote && active) {
-        try {
-          const persisted = localStorage.getItem('motriz_landing_content');
-          const persistedFiles = localStorage.getItem('motriz_uploaded_files');
-          if (persisted) {
-            const parsed = JSON.parse(persisted);
-            if (persistedFiles) {
-              try {
-                parsed.uploadedFiles = JSON.parse(persistedFiles);
-              } catch (e) {
-                console.warn('Erro ao parsear arquivos do localStorage', e);
-              }
-            }
-            const fallbackContent = mergeContent(parsed);
-            globalSiteContentCache = fallbackContent;
-
-            if (!hasUpdatedRef.current) {
-              // eslint-disable-next-line react-hooks/set-state-in-effect
-              setSiteContent(fallbackContent);
-            }
-          }
-        } catch (e) {
-          console.warn('Erro ao carregar do localStorage no fallback.', e);
-        }
-      }
-
-      if (active) {
-        setIsMounted(true);
-      }
     }
 
     if (!globalFetchPromise) {
@@ -198,7 +196,6 @@ export function useSiteContent() {
       globalFetchPromise.then(() => {
         if (active && globalSiteContentCache && !hasUpdatedRef.current) {
           setSiteContent(globalSiteContentCache);
-          setIsMounted(true);
         }
       });
     }
