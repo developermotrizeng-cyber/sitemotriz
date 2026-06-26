@@ -1,8 +1,79 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Lightbulb, Gem, Target, Shield, Award, HelpCircle, Compass, HardHat } from 'lucide-react';
 import { SiteContent } from '../lib/defaultData';
+
+function AnimatedCounter({ value }: { value: string }) {
+  const [displayValue, setDisplayValue] = useState('0');
+  const elementRef = useRef<HTMLSpanElement>(null);
+  
+  useEffect(() => {
+    const match = value.match(/^(\d+)(.*)$/);
+    if (!match) {
+      setDisplayValue(value);
+      return;
+    }
+    
+    const target = parseInt(match[1], 10);
+    const suffix = match[2] || '';
+    
+    let observer: IntersectionObserver | null = null;
+    let animated = false;
+    
+    const startAnimation = () => {
+      if (animated) return;
+      animated = true;
+      
+      const duration = 2000; // 2 seconds animation
+      const startTime = performance.now();
+      
+      const updateCount = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function: easeOutQuad
+        const easeProgress = progress * (2 - progress);
+        
+        const current = Math.floor(easeProgress * target);
+        setDisplayValue(`${current}${suffix}`);
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateCount);
+        } else {
+          setDisplayValue(value);
+        }
+      };
+      
+      requestAnimationFrame(updateCount);
+    };
+    
+    if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          startAnimation();
+          if (observer && elementRef.current) {
+            observer.unobserve(elementRef.current);
+          }
+        }
+      }, { threshold: 0.1 });
+      
+      if (elementRef.current) {
+        observer.observe(elementRef.current);
+      }
+    } else {
+      startAnimation();
+    }
+    
+    return () => {
+      if (observer && elementRef.current) {
+        observer.disconnect();
+      }
+    };
+  }, [value]);
+  
+  return <span ref={elementRef}>{displayValue}</span>;
+}
 
 const mvvIconMap: Record<string, React.ComponentType<any>> = {
   Lightbulb: Lightbulb,
@@ -47,7 +118,7 @@ export default function About({ content }: AboutProps) {
                   className="flex flex-col border-l-4 border-[#2d3f65] bg-[#f6f3f2] p-6 transition-all duration-300 hover:bg-[#eae7e7] rounded"
                 >
                   <span className="font-sans text-3xl sm:text-4xl font-extrabold text-[#2d3f65] tracking-tight">
-                    {stat.value}
+                    <AnimatedCounter value={stat.value} />
                   </span>
                   <span className="font-sans text-xs font-bold text-[#505f7c] tracking-[0.1em] mt-2 uppercase">
                     {stat.label}

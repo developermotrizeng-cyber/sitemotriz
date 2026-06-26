@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Mail, Globe, Send, Phone, MessageSquare, MessageCircle, Linkedin, Check, MapPin, Facebook, Instagram } from 'lucide-react';
 import { SiteContent } from '../lib/defaultData';
 import Logo from './Logo';
@@ -132,12 +133,21 @@ export default function Footer({ content, contact, onScrollToSection }: FooterPr
             <ul className="space-y-2.5">
               {quickLinks.map((link) => (
                 <li key={link.id}>
-                  <button
-                    onClick={() => onScrollToSection(link.id)}
-                    className="font-body text-sm font-light text-[#becee0] hover:text-[#bbccfb] hover:translate-x-1 transition-all text-left"
-                  >
-                    {link.label}
-                  </button>
+                  {link.id === 'portfolio' ? (
+                    <Link
+                      href="/portfolio"
+                      className="font-body text-sm font-light text-[#becee0] hover:text-[#bbccfb] hover:translate-x-1 transition-all text-left inline-block"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => onScrollToSection(link.id)}
+                      className="font-body text-sm font-light text-[#becee0] hover:text-[#bbccfb] hover:translate-x-1 transition-all text-left"
+                    >
+                      {link.label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

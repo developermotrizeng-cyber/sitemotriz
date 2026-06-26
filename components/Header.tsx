@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Menu, X, Lock, Sliders, ArrowUpRight, ChevronDown, Users, Database } from 'lucide-react';
 import { SiteContent } from '../lib/defaultData';
 import Logo from './Logo';
@@ -195,6 +196,19 @@ export default function Header({
                         </a>
                       </div>
                     </div>
+                  </div>
+                );
+              }
+
+              if (item.id === 'portfolio') {
+                return (
+                  <div key={item.id} className="relative h-full flex items-center">
+                    <Link
+                      href="/portfolio"
+                      className="px-3 py-2 rounded-md font-sans text-xs font-bold tracking-widest uppercase text-[#44464e] hover:bg-[#2d3f65] hover:text-white transition-all duration-200 flex items-center cursor-pointer"
+                    >
+                      {labelText}
+                    </Link>
                   </div>
                 );
               }
@@ -431,6 +445,21 @@ export default function Header({
                       </div>
                     )}
                   </div>
+                );
+              }
+
+              if (item.id === 'portfolio') {
+                return (
+                  <Link
+                    key={item.id}
+                    href="/portfolio"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2.5 rounded font-sans text-xs font-bold tracking-widest uppercase text-[#44464e] hover:bg-[#f0eded] hover:text-[#2d3f65] transition-all cursor-pointer"
+                  >
+                    {labelText}
+                  </Link>
                 );
               }
 
