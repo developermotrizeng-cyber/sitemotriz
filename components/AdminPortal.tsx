@@ -2694,25 +2694,15 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                             
                             {/* Icon input */}
                             <div className="space-y-1">
-                              <label className="text-[10px] uppercase font-bold text-zinc-500 block">Ícone Representativo</label>
-                              <select
+                              <label className="text-[10px] uppercase font-bold text-zinc-500 block">Ícone Representativo (Nome do Ícone Lucide)</label>
+                              <input 
+                                type="text"
                                 value={item.icon}
                                 onChange={(e) => updateSpecialtyField(item.id, 'icon', e.target.value)}
-                                className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none cursor-pointer"
-                              >
-                                <option value="Zap">Zap (Projeto Elétrico)</option>
-                                <option value="Layers">Layers (Estrutural)</option>
-                                <option value="Milestone">Milestone (Asfalto/Rodovias)</option>
-                                <option value="Network">Network (Redes e Dados)</option>
-                                <option value="Snowflake">Snowflake (Climatização)</option>
-                                <option value="Droplet">Droplet (Hidrossanitário)</option>
-                                <option value="Flame">Flame (Prevenção de Incêndio)</option>
-                                <option value="Compass">Compass (Arquitetônico/Engenharia)</option>
-                                <option value="Wrench">Wrench (Manutenção)</option>
-                                <option value="Building2">Building (Edificações)</option>
-                                <option value="Hammer">Hammer (Instalações)</option>
-                                <option value="Shield">Shield (Segurança)</option>
-                              </select>
+                                className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none"
+                                placeholder="Ex: Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Compass, Wrench, Building2, Hammer, HardHat, Shield, Activity, Award, Clock, Home..."
+                              />
+                              <p className="text-[9px] text-[#7a889f]">Disponíveis: Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Compass, Database, Cpu, Wrench, Building2, Hammer, HardHat, Shield, Activity, Award, Clock, Home.</p>
                             </div>
                           </div>
 
@@ -2802,25 +2792,15 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-zinc-500">Ícone Representativo</label>
-                    <select
+                    <label className="text-[10px] uppercase font-bold text-zinc-500">Ícone Representativo (Nome do Ícone Lucide)</label>
+                    <input 
+                      type="text"
+                      placeholder="Ex: Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Compass, Wrench, Building2, Hammer, HardHat, Shield, Activity, Award, Clock, Home..."
                       value={newSpec.icon}
                       onChange={(e) => setNewSpec(prev => ({ ...prev, icon: e.target.value }))}
-                      className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none cursor-pointer"
-                    >
-                      <option value="Zap">Zap (Projeto Elétrico)</option>
-                      <option value="Layers">Layers (Estrutural)</option>
-                      <option value="Milestone">Milestone (Asfalto/Rodovias)</option>
-                      <option value="Network">Network (Redes e Dados)</option>
-                      <option value="Snowflake">Snowflake (Climatização)</option>
-                      <option value="Droplet">Droplet (Hidrossanitário)</option>
-                      <option value="Flame">Flame (Prevenção de Incêndio)</option>
-                      <option value="Compass">Compass (Arquitetônico/Engenharia)</option>
-                      <option value="Wrench">Wrench (Manutenção)</option>
-                      <option value="Building2">Building (Edificações)</option>
-                      <option value="Hammer">Hammer (Instalações)</option>
-                      <option value="Shield">Shield (Segurança)</option>
-                    </select>
+                      className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none"
+                    />
+                    <p className="text-[9px] text-[#7a889f]">Disponíveis: Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Compass, Database, Cpu, Wrench, Building2, Hammer, HardHat, Shield, Activity, Award, Clock, Home.</p>
                   </div>
                 </div>
 

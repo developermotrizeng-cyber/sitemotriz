@@ -23,7 +23,11 @@ import {
   Building2,
   Hammer,
   HardHat,
-  Shield
+  Shield,
+  Activity,
+  Award,
+  Clock,
+  Home
 } from 'lucide-react';
 import { SiteContent } from '../lib/defaultData';
 
@@ -49,7 +53,11 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Building2: Building2,
   Hammer: Hammer,
   HardHat: HardHat,
-  Shield: Shield
+  Shield: Shield,
+  Activity: Activity,
+  Award: Award,
+  Clock: Clock,
+  Home: Home
 };
 
 // Map fallback images for specialties preview
@@ -234,7 +242,7 @@ export default function Specialties({
                   onSelectSpecialty(item.id);
                   setPreviewImageIdx(0);
                 }}
-                className={`group shrink-0 w-[240px] sm:w-[260px] p-6 rounded-lg border text-center cursor-pointer transition-all duration-300 snap-center shadow-sm relative overflow-hidden flex flex-col items-center justify-between min-h-[220px] ${
+                className={`group shrink-0 w-[240px] sm:w-[260px] p-6 rounded-lg border text-center cursor-pointer transition-all duration-300 snap-center shadow-sm relative overflow-hidden flex flex-col items-center justify-center min-h-[160px] ${
                   isSelected 
                     ? 'bg-[#3b4e78] border-[#bbccfb] text-white scale-[1.02] ring-2 ring-[#bbccfb]/50 md:translate-y-[-4px]' 
                     : 'bg-[#2d3f65] border-transparent hover:bg-[#344873] text-zinc-100 hover:text-white'
@@ -257,11 +265,6 @@ export default function Specialties({
                     {item.title}
                   </h3>
                 </div>
-
-                {/* Micro description summary - Centered */}
-                <p className="font-body text-[10px] sm:text-[11px] text-[#aebecc] group-hover:text-zinc-100 line-clamp-2 leading-relaxed text-center mt-3">
-                  {item.description}
-                </p>
               </div>
             );
           })}
@@ -339,10 +342,6 @@ export default function Specialties({
 
                 <p className="font-body text-[#44464e] leading-relaxed text-sm font-light">
                   {activeSpecialty.description}
-                </p>
-
-                <p className="font-body text-xs text-zinc-500 leading-relaxed italic border-l-2 border-[#2d3f65]/40 pl-3">
-                  Sempre em conformidade técnica rígida com as normas regulamentoras brasileiras (ABNT/NBR).
                 </p>
 
                 <div className="pt-4 flex flex-col sm:flex-row gap-3">
@@ -447,10 +446,7 @@ export default function Specialties({
             </div>
 
             {/* Modal Actions Footer */}
-            <div className="border-t border-[#f0eded] px-6 py-4 bg-[#fcf9f8] gap-3 flex flex-col sm:flex-row sm:items-center justify-between">
-              <span className="text-[10px] font-sans text-zinc-500 leading-relaxed max-w-xs text-left">
-                Gere o orçamento das suas especialidades técnicas com atendimento ágil em Rondônia.
-              </span>
+            <div className="border-t border-[#f0eded] px-6 py-4 bg-[#fcf9f8] gap-3 flex flex-col sm:flex-row sm:items-center justify-end">
               <div className="flex gap-2">
                 <button
                   onClick={() => setIsModalOpen(false)}
