@@ -146,11 +146,7 @@ export default function ProjectDetailModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="border-t border-[#f0eded] px-6 py-4 bg-[#fcf9f8] gap-3 flex flex-col sm:flex-row sm:items-center justify-between">
-          <span className="text-[10px] font-sans text-zinc-500 leading-relaxed max-w-xs text-left">
-            Empresa estruturada no desenvolvimento de obras industriais,
-            comerciais e habitacionais sob conformidade rígida.
-          </span>
+        <div className="border-t border-[#f0eded] px-6 py-4 bg-[#fcf9f8] gap-3 flex flex-col sm:flex-row sm:items-center justify-end">
           <div className="flex gap-2">
             <button
               onClick={onClose}

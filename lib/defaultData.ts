@@ -195,67 +195,75 @@ export const defaultSiteContent: SiteContent = {
     items: [
       {
         id: "spec-1",
-        title: "PROJETO ELÉTRICO",
-        description: "Projeto elétrico predial e industrial completo com diagramas unifilares, equilibragem de fases e subestações em conformidade.",
-        icon: "Zap",
-        image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80",
-        details: "Nosso projeto elétrico abrange todo o dimensionamento de cargas, circuitos elétricos, diagramas unifilares detalhados, projeto de subestação transformadora e dimensionamento de condutores e proteções elétricas de acordo com a norma NBR 5410. Garantimos o uso inteligente de materiais corporativos e soluções de eficiência energética de alto nível."
+        title: "MINERAÇÃO",
+        description: "Operações completas de lavra, transporte e processamento de minérios com alta conformidade técnica.",
+        icon: "Database",
+        image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80",
+        details: "Atuação no segmento de mineração realizando lavra, beneficiamento e transporte de minérios de forma segura, sustentável e em conformidade rígida com os regulamentos ambientais e técnicos nacionais."
       },
       {
         id: "spec-2",
-        title: "PROJETO ESTRUTURAL",
-        description: "Dimensionamento avançado de fundações, escavações de grande porte e estruturas em concreto armado e aço.",
-        icon: "Layers",
-        image: "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=800&q=80",
-        details: "Cálculo técnico detalhado de estruturas de edifícios multifamiliares, comerciais e industriais. Desenvolvemos o detalhamento completo de armaduras de concreto armado, coberturas metálicas, pontes e bueiros usando tecnologia BIM. Focado em otimização de concreto e aço, reduzindo custos sem desrespeitar os coeficientes de estabilidade global."
+        title: "TERRAPLANAGEM",
+        description: "Movimentação de terra, nivelamento, cortes e aterros estruturados para grandes empreendimentos.",
+        icon: "HardHat",
+        image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80",
+        details: "Serviços avançados de movimentação de solo, cortes, aterros compactados, nivelamento e preparação de terrenos para obras residenciais, comerciais, industriais e de infraestrutura viária."
       },
       {
         id: "spec-3",
-        title: "PROJETO DE ASFALTO",
-        description: "Projetos de engenharia rodoviária, pavimentação asfáltica de ponta, terraplenagem de solos e drenagem urbana.",
-        icon: "Milestone",
-        image: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=800&q=80",
-        details: "Atuamos na engenharia da infraestrutura urbana e de transporte. Elaboramos o dimensionamento de pavimentos rígidos e flexíveis, análise granulométrica de solos e base de cascalho, terraplenagem com balanço de corte e aterro, e drenagem de águas pluviais de rodovias e loteamentos residenciais em Porto Velho e região."
+        title: "LOCAÇÃO DE MÁQUINAS",
+        description: "Frota moderna de maquinários pesados e equipamentos de alta performance para construção.",
+        icon: "Truck",
+        image: "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=800&q=80",
+        details: "Locação de escavadeiras, motoniveladoras, retroescavadeiras, tratores de esteira e rolos compactadores, garantindo equipamentos revisados e operadores qualificados para a máxima eficiência do seu canteiro de obras."
       },
       {
         id: "spec-4",
-        title: "ELÉTRICO E DADOS",
-        description: "Infraestrutura de redes, cabeamento estruturado e redes corporativas de transmissão de dados de alta velocidade.",
-        icon: "Network",
-        image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
-        details: "Planejamento e coordenação de redes de dados, telefonia IP, rack de servidores, sistemas de CFTV IP, detecção digital de intrusão e automação predial integrada. Criamos eletrocalhas e caminhos planejados de cabos que impedem a indução eletromagnética e permitem manutenção rápida e escalabilidade corporativa estruturada."
+        title: "PAVIMENTAÇÃO",
+        description: "Pavimentação asfáltica, rígida e intertravada de alta durabilidade e precisão viária.",
+        icon: "Milestone",
+        image: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=800&q=80",
+        details: "Execução de projetos de pavimentação em asfalto (CBUQ), concreto rígido estruturado e blocos intertravados para loteamentos, pátios logísticos, vias urbanas e acessos industriais."
       },
       {
         id: "spec-5",
-        title: "PROJETO DE CLIMATIZAÇÃO",
-        description: "Projetos de engenharia termo-condicionada, sistemas VRF, PMOC e climatização central de alta eficiência.",
-        icon: "Snowflake",
-        image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80",
-        details: "Especialidade no cálculo de carga térmica de edificações complexas. Desenvolvemos projetos de ar condicionado central refrigerados a água ou ar (Chillers), redes de dutos de distribuição metálicos, sistemas VRF de alta economia energética e elaboração técnica de plano de manutenção e controle de ar condicionado (PMOC)."
+        title: "DRENAGEM",
+        description: "Sistemas eficientes de captação e escoamento de águas pluviais para proteção estrutural.",
+        icon: "Droplet",
+        image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80",
+        details: "Dimensionamento e execução de bueiros, galerias pluviais, canalizações, drenos subterrâneos e sistemas de contenção para controle e escoamento adequado de águas da chuva."
       },
       {
         id: "spec-6",
-        title: "PROJETO HIDROSSANITÁRIO",
-        description: "Instalações hidráulicas prediais, tubulações de esgoto sanitário e captação técnica de águas pluviais na Amazônia.",
-        icon: "Droplet",
-        image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80",
-        details: "Sistemas em tubulações prediais de água fria e água quente (gás/solar). Projetamos redes de esgoto sanitário ventiladas para prevenir o retorno de odores desagradáveis, coletores prediais de águas pluviais prontos para suportar altas cargas de chuvas tropicais características da região Norte do Brasil e reservatórios técnicos."
+        title: "TRANSPORTE FLUVIAL",
+        description: "Logística fluvial segura para transporte de cargas e insumos pelos rios da região.",
+        icon: "Anchor",
+        image: "https://images.unsplash.com/photo-1508243771214-6e95d137426b?auto=format&fit=crop&w=800&q=80",
+        details: "Operação logística fluvial integrada para transporte de equipamentos pesados, brita, asfalto, minérios e insumos de construção através de balsas e empurradores na bacia hidrográfica regional."
       },
       {
         id: "spec-7",
-        title: "PPCI E PREVENTIVO DE INCÊNDIO",
-        description: "Sistemas de proteção contra incêndio ativos e passivos aprovados integralmente pelos Bombeiros.",
-        icon: "Flame",
-        image: "https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&w=800&q=80",
-        details: "Consultoria em segurança contra incêndio para fins de regularização edilícia e AVCB. Desenhamos redes de hidrantes, tubulações aéreas soldadas, sistemas de sprinklers (chuveiros automáticos), central de alarme endereçável, iluminação de emergência e rotas de escape dimensionadas matematicamente para o fluxo de pessoas."
+        title: "PAVIMENTAÇÃO ASFÁLTICA",
+        description: "Aplicação e recomposição de pavimento asfáltica a quente para tráfego pesado.",
+        icon: "Milestone",
+        image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+        details: "Serviço especializado de pavimentação em Concreto Betuminoso Usinado a Quente (CBUQ), recapeamento asfáltico, fresagem e tapa-buracos com elevado rigor técnico e estabilidade superficial."
       },
       {
         id: "spec-8",
-        title: "PROJETO ARQUITETÔNICO",
-        description: "Layouts funcionais, fachadas modernas integradas e soluções inteligentes aliadas à engenharia de custos.",
-        icon: "Compass",
-        image: "https://images.unsplash.com/photo-1503387762458-7e52d4efdec7?auto=format&fit=crop&w=800&q=80",
-        details: "Elaboramos projetos de arquitetura integrando conforto térmico natural, ventilação cruzada e estética sofisticada. Nossos layouts garantem aproveitamento dinâmico do espaço físico e são compatibilizados em sua totalidade com os projetos complementares, mitigando riscos de retrabalho na fase de execução da obra."
+        title: "INFRAESTRUTURA",
+        description: "Obras integradas de infraestrutura urbana, saneamento e loteamentos planejados.",
+        icon: "Building2",
+        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+        details: "Execução integral de obras de infraestrutura básica: abertura de vias, redes de esgoto, abastecimento de água potável, iluminação pública e terraplenagem de grandes áreas urbanas e industriais."
+      },
+      {
+        id: "spec-9",
+        title: "CONSTRUÇÃO CIVIL",
+        description: "Edificações comerciais, industriais e residenciais executadas com excelência construtiva.",
+        icon: "Hammer",
+        image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80",
+        details: "Desenvolvimento e construção de galpões industriais, prédios comerciais, sedes administrativas e projetos habitacionais sob rigoroso cumprimento de prazos, custos e padrões executivos."
       }
     ]
   },

@@ -27,7 +27,9 @@ import {
   Activity,
   Award,
   Clock,
-  Home
+  Home,
+  Anchor,
+  Truck
 } from 'lucide-react';
 import { SiteContent } from '../lib/defaultData';
 
@@ -57,7 +59,9 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Activity: Activity,
   Award: Award,
   Clock: Clock,
-  Home: Home
+  Home: Home,
+  Anchor: Anchor,
+  Truck: Truck
 };
 
 // Map fallback images for specialties preview
