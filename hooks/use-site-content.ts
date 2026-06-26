@@ -77,11 +77,35 @@ let globalFetchPromise: Promise<void> | null = null;
  * a partir do Supabase ou localStorage (fallback).
  */
 export function useSiteContent() {
-  const [siteContent, setSiteContent] = useState<SiteContent>(
-    globalSiteContentCache || defaultSiteContent
-  );
-  // Se já tivermos no cache de memória, não precisamos mostrar loading
-  const [isMounted, setIsMounted] = useState(!!globalSiteContentCache);
+  const [siteContent, setSiteContent] = useState<SiteContent>(() => {
+    if (globalSiteContentCache) return globalSiteContentCache;
+    // Tenta carregar do localStorage de forma síncrona/imediata antes de montar
+    if (typeof window !== 'undefined') {
+      try {
+        const persisted = localStorage.getItem('motriz_landing_content');
+        if (persisted) {
+          const parsed = JSON.parse(persisted);
+          return mergeContent(parsed);
+        }
+      } catch (e) {}
+    }
+    return defaultSiteContent;
+  });
+
+  // Se tivermos cache de memória ou localStorage e não for modo admin, monta direto para evitar spinners
+  const [isMounted, setIsMounted] = useState(() => {
+    if (globalSiteContentCache) return true;
+    if (typeof window !== 'undefined') {
+      try {
+        const isAdmin = window.location.search.includes('admin=true');
+        if (!isAdmin && localStorage.getItem('motriz_landing_content')) {
+          return true;
+        }
+      } catch (e) {}
+    }
+    return false;
+  });
+
   const hasUpdatedRef = useRef(false);
 
   // Wrap setSiteContent to detect when the state is modified by the admin
@@ -104,42 +128,10 @@ export function useSiteContent() {
   useEffect(() => {
     let active = true;
 
-    // Se já carregou nesta sessão, termina imediatamente
-    if (globalSiteContentCache) {
-      if (!isMounted) setIsMounted(true);
+    // Se já carregou nesta sessão e está montado, não faz nada
+    if (globalSiteContentCache && isMounted) {
       return;
     }
-
-    // Criamos um timeout para carregar o LocalStorage se o Supabase demorar mais de 1.5 segundos
-    const fallbackTimeout = setTimeout(() => {
-      if (!active) return;
-      console.log('Supabase demorou mais de 1.5s. Usando LocalStorage/dados locais como fallback...');
-      try {
-        const persisted = localStorage.getItem('motriz_landing_content');
-        const persistedFiles = localStorage.getItem('motriz_uploaded_files');
-        if (persisted) {
-          const parsed = JSON.parse(persisted);
-          if (persistedFiles) {
-            try {
-              parsed.uploadedFiles = JSON.parse(persistedFiles);
-            } catch (e) {
-              console.warn('Erro ao parsear arquivos do localStorage', e);
-            }
-          }
-          const fallbackContent = mergeContent(parsed);
-          globalSiteContentCache = fallbackContent;
-
-          if (!hasUpdatedRef.current) {
-            setSiteContent(fallbackContent);
-          }
-        }
-      } catch (e) {
-        console.warn('Erro ao carregar do localStorage no fallback.', e);
-      }
-
-      // Libera a UI com dados locais
-      setIsMounted(true);
-    }, 1500);
 
     async function loadContentRemote() {
       let fetchedFromRemote = false;
@@ -165,9 +157,6 @@ export function useSiteContent() {
             fetchedFromRemote = true;
             const newContent = mergeContent(data.content);
             globalSiteContentCache = newContent;
-
-            // Cancela o timeout do fallback para usar diretamente os dados frescos do Supabase
-            clearTimeout(fallbackTimeout);
 
             // Only update active state if the user hasn't made edits in the current session
             if (!hasUpdatedRef.current) {
@@ -196,9 +185,8 @@ export function useSiteContent() {
         }
       }
 
-      // Se falhar a conexão com o Supabase antes do timeout de 1.5s, força o fallback imediato
+      // Se falhar o Supabase e não tivermos cache, carrega do localStorage ou padrão
       if (!fetchedFromRemote && active) {
-        clearTimeout(fallbackTimeout);
         try {
           const persisted = localStorage.getItem('motriz_landing_content');
           const persistedFiles = localStorage.getItem('motriz_uploaded_files');
@@ -227,7 +215,6 @@ export function useSiteContent() {
       // Aguarda a promessa global terminar se já estiver carregando em outra aba/componente
       globalFetchPromise.then(() => {
         if (active) {
-          clearTimeout(fallbackTimeout);
           if (globalSiteContentCache && !hasUpdatedRef.current) {
             setSiteContent(globalSiteContentCache);
           }
@@ -238,7 +225,6 @@ export function useSiteContent() {
 
     return () => {
       active = false;
-      clearTimeout(fallbackTimeout);
     };
   }, [isMounted]);
 
