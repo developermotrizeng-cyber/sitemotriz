@@ -5,10 +5,50 @@ import {
   Lock, Unlock, Save, RotateCcw, Upload, Download, Eye, 
   Trash2, Plus, ArrowLeft, Sliders, Check, AlertTriangle, 
   FileText, HelpCircle, HardHat, Compass, Wrench, Building2, Shield, Image,
-  Mail, Phone, Key, Sparkles, RefreshCw, UserCheck, Edit3, ShieldAlert
+  Mail, Phone, Key, Sparkles, RefreshCw, UserCheck, Edit3, ShieldAlert,
+  Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Database, Cpu,
+  Hammer, Activity, Award, Clock, Home, Anchor, Truck
 } from 'lucide-react';
 import { SiteContent, defaultSiteContent } from '../lib/defaultData';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
+
+const lucideIconMap: Record<string, React.ComponentType<any>> = {
+  Zap,
+  Layers,
+  Milestone,
+  Network,
+  Snowflake,
+  Droplet,
+  Flame,
+  Compass,
+  Database,
+  Cpu,
+  Wrench,
+  Building2,
+  Hammer,
+  HardHat,
+  Shield,
+  Activity,
+  Award,
+  Clock,
+  Home,
+  Anchor,
+  Truck
+};
+
+const segmentIcons = [
+  { name: 'Database', label: 'Mineração' },
+  { name: 'HardHat', label: 'Terraplanagem' },
+  { name: 'Truck', label: 'Locação de Máquinas' },
+  { name: 'Milestone', label: 'Pavimentação' },
+  { name: 'Droplet', label: 'Drenagem' },
+  { name: 'Anchor', label: 'Transporte Fluvial' },
+  { name: 'Building2', label: 'Infraestrutura' },
+  { name: 'Hammer', label: 'Construção Civil' },
+  { name: 'Compass', label: 'Projetos' },
+  { name: 'Wrench', label: 'Manutenção' },
+  { name: 'Shield', label: 'Segurança' }
+];
 
 interface ImageSelectorProps {
   files: any[];
@@ -2692,17 +2732,50 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                               />
                             </div>
                             
-                            {/* Icon input */}
-                            <div className="space-y-1">
-                              <label className="text-[10px] uppercase font-bold text-zinc-500 block">Ícone Representativo (Nome do Ícone Lucide)</label>
+                            <div className="space-y-2 sm:col-span-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[10px] uppercase font-bold text-[#2d3f65] block">Ícone Representativo</label>
+                                {(() => {
+                                  const IconComponent = lucideIconMap[item.icon] || HelpCircle;
+                                  return (
+                                    <div className="flex items-center gap-1.5 px-2 py-1 bg-[#2d3f65] text-white rounded text-[10px] font-sans font-bold shadow-sm uppercase tracking-wider">
+                                      <span>Pré-visualização:</span>
+                                      <IconComponent className="h-4 w-4 stroke-[2]" />
+                                    </div>
+                                  );
+                                })()}
+                              </div>
                               <input 
                                 type="text"
                                 value={item.icon}
                                 onChange={(e) => updateSpecialtyField(item.id, 'icon', e.target.value)}
                                 className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none"
-                                placeholder="Ex: Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Compass, Wrench, Building2, Hammer, HardHat, Shield, Activity, Award, Clock, Home..."
+                                placeholder="Digite o nome do ícone Lucide..."
                               />
-                              <p className="text-[9px] text-[#7a889f]">Disponíveis: Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Compass, Database, Cpu, Wrench, Building2, Hammer, HardHat, Shield, Activity, Award, Clock, Home.</p>
+                              
+                              {/* Visual presets selector */}
+                              <div className="space-y-1">
+                                <span className="text-[9px] uppercase font-bold text-[#505f7c] block">Ou selecione um ícone do segmento:</span>
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 p-2 bg-[#f6f3f2] rounded border border-zinc-200">
+                                  {segmentIcons.map((seg) => {
+                                    const SegIcon = lucideIconMap[seg.name] || HelpCircle;
+                                    const isActive = item.icon === seg.name;
+                                    return (
+                                      <button
+                                        type="button"
+                                        key={seg.name}
+                                        onClick={() => updateSpecialtyField(item.id, 'icon', seg.name)}
+                                        className={`flex flex-col items-center justify-center p-2 rounded border bg-white hover:border-[#2d3f65] hover:bg-[#bbccfb]/10 transition-all text-center gap-1 cursor-pointer ${
+                                          isActive ? 'border-[#2d3f65] ring-2 ring-[#2d3f65]/20 bg-[#2d3f65]/5' : 'border-zinc-200'
+                                        }`}
+                                      >
+                                        <SegIcon className={`h-5 w-5 ${isActive ? 'text-[#2d3f65]' : 'text-zinc-600'}`} />
+                                        <span className="text-[8px] font-bold uppercase truncate max-w-full text-zinc-700 leading-tight">{seg.label}</span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
                             </div>
                           </div>
 
@@ -2791,16 +2864,50 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                       className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-zinc-500">Ícone Representativo (Nome do Ícone Lucide)</label>
+                  <div className="space-y-2 sm:col-span-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] uppercase font-bold text-[#2d3f65] block">Ícone Representativo</label>
+                      {(() => {
+                        const IconComponent = lucideIconMap[newSpec.icon] || HelpCircle;
+                        return (
+                          <div className="flex items-center gap-1.5 px-2 py-1 bg-[#2d3f65] text-white rounded text-[10px] font-sans font-bold shadow-sm uppercase tracking-wider">
+                            <span>Pré-visualização:</span>
+                            <IconComponent className="h-4 w-4 stroke-[2]" />
+                          </div>
+                        );
+                      })()}
+                    </div>
                     <input 
                       type="text"
-                      placeholder="Ex: Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Compass, Wrench, Building2, Hammer, HardHat, Shield, Activity, Award, Clock, Home..."
+                      placeholder="Digite o nome do ícone Lucide..."
                       value={newSpec.icon}
                       onChange={(e) => setNewSpec(prev => ({ ...prev, icon: e.target.value }))}
                       className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none"
                     />
-                    <p className="text-[9px] text-[#7a889f]">Disponíveis: Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Compass, Database, Cpu, Wrench, Building2, Hammer, HardHat, Shield, Activity, Award, Clock, Home.</p>
+                    
+                    {/* Visual presets selector */}
+                    <div className="space-y-1">
+                      <span className="text-[9px] uppercase font-bold text-[#505f7c] block">Ou selecione um ícone do segmento:</span>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 p-2 bg-[#f6f3f2] rounded border border-zinc-200">
+                        {segmentIcons.map((seg) => {
+                          const SegIcon = lucideIconMap[seg.name] || HelpCircle;
+                          const isActive = newSpec.icon === seg.name;
+                          return (
+                            <button
+                              type="button"
+                              key={seg.name}
+                              onClick={() => setNewSpec(prev => ({ ...prev, icon: seg.name }))}
+                              className={`flex flex-col items-center justify-center p-2 rounded border bg-white hover:border-[#2d3f65] hover:bg-[#bbccfb]/10 transition-all text-center gap-1 cursor-pointer ${
+                                isActive ? 'border-[#2d3f65] ring-2 ring-[#2d3f65]/20 bg-[#2d3f65]/5' : 'border-zinc-200'
+                              }`}
+                            >
+                              <SegIcon className={`h-5 w-5 ${isActive ? 'text-[#2d3f65]' : 'text-zinc-600'}`} />
+                              <span className="text-[8px] font-bold uppercase truncate max-w-full text-zinc-700 leading-tight">{seg.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
