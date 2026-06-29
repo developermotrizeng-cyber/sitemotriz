@@ -125,13 +125,13 @@ export function useSiteContent() {
     }
   }, []);
 
+  // Garante o montagem imediata no lado do cliente para evitar spinners travados
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     let active = true;
-
-    // Se já carregou nesta sessão e está montado, não faz nada
-    if (globalSiteContentCache && isMounted) {
-      return;
-    }
 
     async function loadContentRemote() {
       let fetchedFromRemote = false;
@@ -144,7 +144,7 @@ export function useSiteContent() {
             .eq('id', 'motriz_landing_content')
             .maybeSingle();
             
-          // Fallback timeout de 8 segundos para evitar spinner infinito caso o Supabase caia totalmente
+          // Fallback timeout de 8 segundos para evitar travamento em background caso o Supabase caia totalmente
           const timeoutPromise = new Promise((resolve) => 
             setTimeout(() => resolve({ error: new Error('Timeout') }), 8000)
           );
@@ -158,15 +158,12 @@ export function useSiteContent() {
             const newContent = mergeContent(data.content);
             globalSiteContentCache = newContent;
 
-            // Only update active state if the user hasn't made edits in the current session
+            // Só atualiza o estado se o usuário não tiver feito edições locais na sessão atual
             if (!hasUpdatedRef.current) {
               setSiteContent(newContent);
             }
             
-            // Libera a tela com os dados atualizados
-            setIsMounted(true);
-            
-            // Always update localStorage cache for the next reload
+            // Atualiza sempre o localStorage para cache no próximo carregamento
             try {
               const secureContent = { ...data.content };
               delete secureContent.smtp;
@@ -185,7 +182,7 @@ export function useSiteContent() {
         }
       }
 
-      // Se falhar o Supabase e não tivermos cache, carrega do localStorage ou padrão
+      // Se falhar o Supabase e não tivermos cache local na inicialização, tenta ler do localStorage
       if (!fetchedFromRemote && active) {
         try {
           const persisted = localStorage.getItem('motriz_landing_content');
@@ -205,20 +202,16 @@ export function useSiteContent() {
             }
           }
         } catch (e) {}
-        setIsMounted(true);
       }
     }
 
     if (!globalFetchPromise) {
       globalFetchPromise = loadContentRemote();
     } else {
-      // Aguarda a promessa global terminar se já estiver carregando em outra aba/componente
+      // Aguarda a promessa global terminar se já estiver carregando em outro componente
       globalFetchPromise.then(() => {
-        if (active) {
-          if (globalSiteContentCache && !hasUpdatedRef.current) {
-            setSiteContent(globalSiteContentCache);
-          }
-          setIsMounted(true);
+        if (active && globalSiteContentCache && !hasUpdatedRef.current) {
+          setSiteContent(globalSiteContentCache);
         }
       });
     }
@@ -226,7 +219,7 @@ export function useSiteContent() {
     return () => {
       active = false;
     };
-  }, [isMounted]);
+  }, []);
 
   return { siteContent, setSiteContent: setSiteContentExternal, isMounted };
 }
