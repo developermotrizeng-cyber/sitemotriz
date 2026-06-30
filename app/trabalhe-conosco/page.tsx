@@ -3,18 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  Briefcase, 
-  User, 
-  Mail, 
-  Phone, 
-  UploadCloud, 
-  CheckCircle, 
-  ArrowLeft, 
-  Clock, 
-  FileText, 
-  DollarSign, 
-  Globe 
+import {
+  Briefcase,
+  User,
+  Mail,
+  Phone,
+  UploadCloud,
+  CheckCircle,
+  ArrowLeft,
+  Clock,
+  FileText,
+  DollarSign,
+  Globe
 } from 'lucide-react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -102,7 +102,7 @@ export default function CareersPage() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       processFile(file);
@@ -123,13 +123,13 @@ export default function CareersPage() {
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const candidacyId = 'cand-' + Date.now();
       const submittedAtString = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      
+
       let publicUrl = '';
-      
+
       if (isSupabaseConfigured()) {
         try {
           if (formData.curriculoData) {
@@ -137,14 +137,14 @@ export default function CareersPage() {
             const fileExt = (formData.curriculoNome || 'pdf').split('.').pop();
             const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
             const filePath = `${fileName}`;
-            
+
             const { data: uploadData, error: uploadError } = await supabase.storage
               .from('resumes')
               .upload(filePath, blob, {
                 contentType: formData.curriculoTipo || 'application/pdf',
                 upsert: true
               });
-              
+
             if (uploadError) {
               console.error('Erro no upload do currículo:', uploadError);
             } else {
@@ -154,7 +154,7 @@ export default function CareersPage() {
               publicUrl = urlData.publicUrl;
             }
           }
-          
+
           const { error: insertError } = await supabase
             .from('candidacies')
             .insert({
@@ -169,7 +169,7 @@ export default function CareersPage() {
               curriculo_nome: formData.curriculoNome || null,
               curriculo_url: publicUrl || null
             });
-          
+
           if (insertError) {
             console.error('Erro ao salvar candidatura no banco de dados:', insertError);
           }
@@ -208,7 +208,7 @@ export default function CareersPage() {
       } catch (lsErr) {
         console.warn('Erro ao salvar no LocalStorage após candidatura:', lsErr);
       }
-      
+
       // Update local state smoothly
       setSiteContent(updatedContent);
 
@@ -223,21 +223,21 @@ export default function CareersPage() {
           careersEmail: siteContent.careersEmail
         })
       })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          console.warn('SMTP sending error or omitted config:', errData?.error);
-        } else {
-          console.log('Candidature SMTP notification dispatched successfully.');
-        }
-      })
-      .catch((err) => {
-        console.warn('Background candidacy dispatch fail details:', err);
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-        setIsSubmitted(true);
-      });
+        .then(async (res) => {
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            console.warn('SMTP sending error or omitted config:', errData?.error);
+          } else {
+            console.log('Candidature SMTP notification dispatched successfully.');
+          }
+        })
+        .catch((err) => {
+          console.warn('Background candidacy dispatch fail details:', err);
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+          setIsSubmitted(true);
+        });
     } catch (err) {
       console.error("Erro ao registrar candidatura local:", err);
       setIsSubmitting(false);
@@ -262,15 +262,15 @@ export default function CareersPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-[#fcf9f8] text-[#1b1c1c] scroll-smooth">
-      
+
       {/* Header block synchronized */}
-      <Header 
+      <Header
         content={siteContent.header}
         specialties={siteContent.specialties}
         onOpenAdmin={() => { router.push('/?admin=true'); }}
         isAdminActive={false}
         onScrollToSection={handleScrollToSection}
-        onSelectSpecialty={() => {}}
+        onSelectSpecialty={() => { }}
       />
 
       {/* Hero Banner Section matching Portfolio style */}
@@ -281,7 +281,7 @@ export default function CareersPage() {
         }} />
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl space-y-4">
-            <Link 
+            <Link
               href="/"
               className="inline-flex items-center gap-1.5 text-xs font-sans font-bold text-[#bbccfb] hover:text-white transition-colors uppercase tracking-wider"
             >
@@ -300,13 +300,13 @@ export default function CareersPage() {
 
       {/* Main Container Section */}
       <section className="max-w-4xl mx-auto px-4 py-12 flex-grow w-full">
-        
+
         {isSubmitted ? (
           <div className="bg-white rounded-lg p-8 sm:p-12 shadow-xl text-center border border-zinc-200 space-y-6 animate-in zoom-in-95 duration-300 my-8" id="success-message">
             <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-green-50 text-green-600 mb-2">
               <CheckCircle className="h-10 w-10" />
             </div>
-            
+
             <div className="space-y-2">
               <h2 className="font-sans text-2xl font-extrabold text-[#2d3f65]">
                 Candidatura Enviada!
@@ -338,7 +338,7 @@ export default function CareersPage() {
             </div>
 
             <div className="pt-4">
-              <button 
+              <button
                 onClick={() => {
                   setFormData({
                     nome: '',
@@ -362,7 +362,7 @@ export default function CareersPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            
+
             {/* Title / Info card */}
             <div className="bg-white rounded-lg shadow-sm border border-[#E2E8F0] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
               <div className="p-4 bg-zinc-50 rounded text-4xl">💼</div>
@@ -387,18 +387,18 @@ export default function CareersPage() {
 
               {/* Grid 1: Basic Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                
+
                 {/* Nome completo */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-[#505f7c] flex items-center gap-1">
                     <User className="h-3.5 w-3.5 text-[#2d3f65]" />
                     <span>Nome Completo *</span>
                   </label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="nome"
                     required
-                    placeholder="Ex: João da Silva Santos"
+                    placeholder="Ex: Pedro da Silva Santos"
                     value={formData.nome}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none focus:ring-1 focus:ring-[#2d3f65]"
@@ -411,11 +411,11 @@ export default function CareersPage() {
                     <Mail className="h-3.5 w-3.5 text-[#2d3f65]" />
                     <span>E-mail Corporativo ou Pessoal *</span>
                   </label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     name="email"
                     required
-                    placeholder="Ex: joao.santos@email.com"
+                    placeholder="Ex: pedro.santos@email.com"
                     value={formData.email}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none focus:ring-1 focus:ring-[#2d3f65]"
@@ -426,15 +426,15 @@ export default function CareersPage() {
 
               {/* Grid 2: Telephone and vacancys */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                
+
                 {/* Telefone */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-[#505f7c] flex items-center gap-1">
                     <Phone className="h-3.5 w-3.5 text-[#2d3f65]" />
                     <span>Telefone com DDD *</span>
                   </label>
-                  <input 
-                    type="tel" 
+                  <input
+                    type="tel"
                     name="telefone"
                     required
                     placeholder="Ex: (69) 99999-1234"
@@ -468,17 +468,17 @@ export default function CareersPage() {
 
               {/* Grid 3: Salary Expectation and LinkedIn */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                
+
                 {/* Pretensão salarial */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-[#505f7c] flex items-center gap-1">
                     <DollarSign className="h-3.5 w-3.5 text-[#2d3f65]" />
                     <span>Pretensão Salarial Mensal (R$)</span>
                   </label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="pretensao"
-                    placeholder="Ex: R$ 6.500,00"
+                    placeholder="Ex: R$ 2.500,00"
                     value={formData.pretensao}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 bg-white border border-[#c5c6cf] rounded text-xs focus:outline-none focus:ring-1 focus:ring-[#2d3f65]"
@@ -491,8 +491,8 @@ export default function CareersPage() {
                     <Globe className="h-3.5 w-3.5 text-[#2d3f65]" />
                     <span>LinkedIn ou URL de Portfólio</span>
                   </label>
-                  <input 
-                    type="url" 
+                  <input
+                    type="url"
                     name="linkedin"
                     placeholder="Ex: https://linkedin.com/in/perfil"
                     value={formData.linkedin}
@@ -509,31 +509,30 @@ export default function CareersPage() {
                   <UploadCloud className="h-3.5 w-3.5 text-[#2d3f65]" />
                   <span>Anexar Currículo (PDF, Word ou Imagem)</span>
                 </label>
-                
-                <div 
-                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-                    dragActive 
-                      ? 'border-[#2d3f65] bg-[#becee0]/10 scale-[0.99]' 
-                      : formData.curriculoNome 
-                        ? 'border-green-500 bg-green-50/20' 
+
+                <div
+                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${dragActive
+                      ? 'border-[#2d3f65] bg-[#becee0]/10 scale-[0.99]'
+                      : formData.curriculoNome
+                        ? 'border-green-500 bg-green-50/20'
                         : 'border-[#c5c6cf] hover:border-[#2d3f65] bg-zinc-50'
-                  }`}
+                    }`}
                   onDragEnter={handleDrag}
                   onDragOver={handleDrag}
                   onDragLeave={handleDrag}
                   onDrop={handleDrop}
                 >
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
                     id="curriculo-file"
-                    className="hidden" 
+                    className="hidden"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                     onChange={handleFileChange}
                   />
-                  
+
                   <label htmlFor="curriculo-file" className="cursor-pointer space-y-2 block">
                     <UploadCloud className={`mx-auto h-10 w-10 ${formData.curriculoNome ? 'text-green-500' : 'text-[#7a889f]'}`} />
-                    
+
                     {formData.curriculoNome ? (
                       <div className="space-y-1">
                         <p className="text-xs font-bold text-green-700 font-sans">
@@ -560,7 +559,7 @@ export default function CareersPage() {
               {/* Mensagem / Resumo profissional */}
               <div className="space-y-1.5">
                 <label className="text-[10px] uppercase font-bold text-[#505f7c]">Breve Apresentação & Mensagem</label>
-                <textarea 
+                <textarea
                   name="mensagem"
                   rows={4}
                   placeholder="Fale brevemente sobre suas principais qualificações, certificados construtivos (CREA, cursos de SST) e por que deseja trabalhar conosco..."
@@ -575,7 +574,7 @@ export default function CareersPage() {
                 <span className="text-[9px] text-zinc-500 leading-normal max-w-sm text-center sm:text-left">
                   Conforme a Lei Geral de Proteção de Dados (LGPD), seus dados serão armazenados de forma segura e exclusiva para recrutamento de pessoal na Motriz.
                 </span>
-                
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -593,8 +592,8 @@ export default function CareersPage() {
       </section>
 
       {/* Synchronized professional layout footer */}
-      <Footer 
-        content={siteContent.footer} 
+      <Footer
+        content={siteContent.footer}
         onScrollToSection={handleScrollToSection}
       />
 
