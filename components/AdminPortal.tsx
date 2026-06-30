@@ -7,7 +7,11 @@ import {
   FileText, HelpCircle, HardHat, Compass, Wrench, Building2, Shield, Image,
   Mail, Phone, Key, Sparkles, RefreshCw, UserCheck, Edit3, ShieldAlert,
   Zap, Layers, Milestone, Network, Snowflake, Droplet, Flame, Database, Cpu,
-  Hammer, Activity, Award, Clock, Home, Anchor, Truck
+  Hammer, Activity, Award, Clock, Home, Anchor, Truck,
+  Building, Ruler, Shovel, Cone, Briefcase, Map, Calendar, ClipboardList,
+  TrendingUp, Scale, Gauge, FlaskConical, MapPin, Lightbulb, Calculator,
+  LineChart, Factory, Fence, Forklift, Grid, TreePine, Waves, Settings,
+  Folder, Pencil
 } from 'lucide-react';
 import { SiteContent, defaultSiteContent } from '../lib/defaultData';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
@@ -33,21 +37,94 @@ const lucideIconMap: Record<string, React.ComponentType<any>> = {
   Clock,
   Home,
   Anchor,
-  Truck
+  Truck,
+  Building,
+  Ruler,
+  Shovel,
+  Cone,
+  Briefcase,
+  Map,
+  Calendar,
+  ClipboardList,
+  FileText,
+  TrendingUp,
+  Scale,
+  Gauge,
+  FlaskConical,
+  MapPin,
+  Lightbulb,
+  Calculator,
+  LineChart,
+  Factory,
+  Fence,
+  Forklift,
+  Grid,
+  TreePine,
+  Waves,
+  Settings,
+  Eye,
+  Folder,
+  Pencil
 };
 
 const segmentIcons = [
-  { name: 'Database', label: 'Mineração' },
+  // Core Activities / Sectors
   { name: 'HardHat', label: 'Terraplanagem' },
-  { name: 'Truck', label: 'Locação de Máquinas' },
+  { name: 'Hammer', label: 'Construção Civil' },
+  { name: 'Wrench', label: 'Manutenção' },
+  { name: 'Building2', label: 'Infraestrutura' },
+  { name: 'Building', label: 'Edificações' },
+  { name: 'Truck', label: 'Locação / Máquinas' },
   { name: 'Milestone', label: 'Pavimentação' },
   { name: 'Droplet', label: 'Drenagem' },
-  { name: 'Anchor', label: 'Transporte Fluvial' },
-  { name: 'Building2', label: 'Infraestrutura' },
-  { name: 'Hammer', label: 'Construção Civil' },
-  { name: 'Compass', label: 'Projetos' },
-  { name: 'Wrench', label: 'Manutenção' },
-  { name: 'Shield', label: 'Segurança' }
+  { name: 'Database', label: 'Mineração' },
+  { name: 'Anchor', label: 'Transp. Fluvial' },
+  
+  // Engineering / Operations
+  { name: 'Compass', label: 'Projetos / Design' },
+  { name: 'Ruler', label: 'Medição / Escopo' },
+  { name: 'Shovel', label: 'Fundação / Escavação' },
+  { name: 'Cone', label: 'Sinalização / Vias' },
+  { name: 'Briefcase', label: 'Gestão / Contratos' },
+  { name: 'Map', label: 'Topografia' },
+  { name: 'Calendar', label: 'Planejamento / Datas' },
+  { name: 'ClipboardList', label: 'Diário de Obra' },
+  
+  // Control / Technical
+  { name: 'FileText', label: 'Relatórios / ART' },
+  { name: 'TrendingUp', label: 'Produtividade' },
+  { name: 'Scale', label: 'Balança / Insumos' },
+  { name: 'Gauge', label: 'Ensaios / Controle' },
+  { name: 'FlaskConical', label: 'Lab. Concreto' },
+  { name: 'MapPin', label: 'Canteiro / Local' },
+  { name: 'Lightbulb', label: 'Inovação / Ideias' },
+  { name: 'Calculator', label: 'Cálculo Estrutural' },
+  
+  // Specialized Utilities
+  { name: 'LineChart', label: 'Cronogramas / Curva S' },
+  { name: 'Factory', label: 'Usina / Indústria' },
+  { name: 'Fence', label: 'Tapumes / Cercas' },
+  { name: 'Forklift', label: 'Logística / Almox' },
+  { name: 'Grid', label: 'Armaduras / Aço' },
+  { name: 'TreePine', label: 'Meio Ambiente' },
+  { name: 'Waves', label: 'Canais / Hidráulica' },
+  { name: 'Settings', label: 'Maquinário' },
+  { name: 'Eye', label: 'Inspeção / Vistoria' },
+  { name: 'Folder', label: 'Arquivo Técnico' },
+  { name: 'Pencil', label: 'Desenho / Revisão' },
+  
+  // Others / Utilities
+  { name: 'Shield', label: 'Segurança / EPI' },
+  { name: 'Zap', label: 'Elétrica / Energia' },
+  { name: 'Flame', label: 'Inst. Incêndio' },
+  { name: 'Snowflake', label: 'Refrigeração / HVAC' },
+  { name: 'Layers', label: 'Estruturas / Camadas' },
+  { name: 'Network', label: 'Redes / Dutos' },
+  { name: 'Cpu', label: 'Automação' },
+  { name: 'Activity', label: 'Sinalização / Ensaios' },
+  { name: 'Award', label: 'Certificação / Qualidade' },
+  { name: 'Clock', label: 'Prazo / Cronograma' },
+  { name: 'Home', label: 'Residencial / Casas' }
 ];
 
 interface ImageSelectorProps {
@@ -2756,7 +2833,7 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                               {/* Visual presets selector */}
                               <div className="space-y-1">
                                 <span className="text-[9px] uppercase font-bold text-[#505f7c] block">Ou selecione um ícone do segmento:</span>
-                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 p-2 bg-[#f6f3f2] rounded border border-zinc-200">
+                                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1.5 p-2 bg-[#f6f3f2] rounded border border-zinc-200 overflow-y-auto max-h-[220px]">
                                   {segmentIcons.map((seg) => {
                                     const SegIcon = lucideIconMap[seg.name] || HelpCircle;
                                     const isActive = item.icon === seg.name;
@@ -2888,7 +2965,7 @@ export default function AdminPortal({ content, onUpdateContent, onClose }: Admin
                     {/* Visual presets selector */}
                     <div className="space-y-1">
                       <span className="text-[9px] uppercase font-bold text-[#505f7c] block">Ou selecione um ícone do segmento:</span>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 p-2 bg-[#f6f3f2] rounded border border-zinc-200">
+                      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1.5 p-2 bg-[#f6f3f2] rounded border border-zinc-200 overflow-y-auto max-h-[220px]">
                         {segmentIcons.map((seg) => {
                           const SegIcon = lucideIconMap[seg.name] || HelpCircle;
                           const isActive = newSpec.icon === seg.name;
