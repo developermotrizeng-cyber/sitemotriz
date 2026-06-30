@@ -11,7 +11,7 @@ export default function Partners({ content }: PartnersProps) {
   if (!content) return null;
 
   return (
-    <section id="parceiros" className="py-16 bg-[#f9f6f5] border-t border-[#E2E8F0] text-[#1b1c1c]">
+    <section id="parceiros" className="py-16 bg-[#f0f4fa] border-t border-[#E2E8F0] text-[#1b1c1c]">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl mx-auto mb-12">

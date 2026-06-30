@@ -57,7 +57,7 @@ export default function Portfolio({ content, onProjectClick }: PortfolioProps) {
   };
 
   return (
-    <section id="portfolio" className="py-12 bg-[#fcf9f8] text-[#1b1c1c]">
+    <section id="portfolio" className="py-12 bg-white text-[#1b1c1c]">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header containing text and view buttons */}

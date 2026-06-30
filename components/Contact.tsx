@@ -95,7 +95,7 @@ export default function Contact({ content }: ContactProps) {
   };
 
   return (
-    <section id="contato" className="py-12 bg-[#f9f6f5] border-t border-[#E2E8F0]">
+    <section id="contato" className="py-12 bg-white border-t border-[#E2E8F0]">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">

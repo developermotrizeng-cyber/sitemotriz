@@ -247,7 +247,7 @@ export default function Specialties({
   };
 
   return (
-    <section id="atuacoes" className="py-16 bg-[#f9f6f5] border-y border-[#E2E8F0] text-[#1b1c1c] scroll-mt-20">
+    <section id="atuacoes" className="py-16 bg-[#f0f4fa] border-y border-[#E2E8F0] text-[#1b1c1c] scroll-mt-20">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
