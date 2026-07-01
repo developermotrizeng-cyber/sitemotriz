@@ -32,9 +32,18 @@ function mergeContent(parsed: any): SiteContent {
         parsed.specialties?.items && parsed.specialties.items.length > 0
           ? parsed.specialties.items.map((it: any, idx: number) => {
               const def = defaultSiteContent.specialties.items[idx] || {};
-              return { ...def, ...it };
+              const item = { ...def, ...it };
+              if (item.title === 'PAVIMENTAÇÃO' && (item.icon === 'Wrench' || item.icon === 'Milestone')) {
+                item.icon = 'Roller';
+              }
+              return item;
             })
-          : defaultSiteContent.specialties.items,
+          : defaultSiteContent.specialties.items.map((item) => {
+              if (item.title === 'PAVIMENTAÇÃO' && (item.icon === 'Wrench' || item.icon === 'Milestone')) {
+                return { ...item, icon: 'Roller' };
+              }
+              return item;
+            }),
     },
     portfolio: {
       ...defaultSiteContent.portfolio,

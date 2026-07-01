@@ -29,11 +29,32 @@ export default function Footer({ content, contact, onScrollToSection }: FooterPr
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail || !newsletterEmail.includes('@')) return;
-    setNewsletterSubscribed(true);
-    setNewsletterEmail('');
-    setTimeout(() => {
-      setNewsletterSubscribed(false);
-    }, 4000);
+
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: 'Assinante Newsletter',
+        email: newsletterEmail,
+        telefone: '',
+        tipoProjeto: 'Newsletter',
+        mensagem: `Solicitação de cadastro de e-mail na newsletter: ${newsletterEmail}`
+      })
+    })
+    .then((res) => {
+      if (res.ok) {
+        setNewsletterSubscribed(true);
+        setNewsletterEmail('');
+        setTimeout(() => {
+          setNewsletterSubscribed(false);
+        }, 4000);
+      } else {
+        console.error('Erro ao registrar e-mail na newsletter');
+      }
+    })
+    .catch((err) => {
+      console.error('Erro ao conectar com API de newsletter:', err);
+    });
   };
 
   // WhatsApp helper
@@ -52,7 +73,7 @@ export default function Footer({ content, contact, onScrollToSection }: FooterPr
               <div className="h-0.5 w-12 bg-[#bbccfb]" />
             </div>
             
-            <p className="font-body text-[#becee0] text-sm leading-relaxed max-w-sm font-light">
+            <p className="font-body text-[#becee0] text-sm leading-relaxed max-w-sm font-light text-justify">
               {content.brandDesc}
             </p>
 
@@ -195,9 +216,9 @@ export default function Footer({ content, contact, onScrollToSection }: FooterPr
           <span>{content.copyrightText}</span>
           
           <div className="flex gap-4">
-            <a href="#" className="hover:text-[#bbccfb] transition-colors">Política de Privacidade</a>
+            <Link href="/politica-de-privacidade" className="hover:text-[#bbccfb] transition-colors">Política de Privacidade</Link>
             <span>|</span>
-            <a href="#" className="hover:text-[#bbccfb] transition-colors">Termos de Uso</a>
+            <Link href="/termos-de-uso" className="hover:text-[#bbccfb] transition-colors">Termos de Uso</Link>
           </div>
 
         </div>

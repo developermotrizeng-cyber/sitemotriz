@@ -106,7 +106,7 @@ export default function About({ content }: AboutProps) {
               </h2>
             </div>
 
-            <p className="font-body text-[#44464e] leading-relaxed text-lg font-light text-pretty" id="about-description">
+            <p className="font-body text-[#44464e] leading-relaxed text-lg font-light text-pretty text-justify" id="about-description">
               {content.description}
             </p>
 
@@ -188,7 +188,7 @@ export default function About({ content }: AboutProps) {
                     </h3>
                     
                     {/* Description narrative text */}
-                    <p className="font-body text-xs sm:text-sm text-[#505f7c] leading-relaxed font-light">
+                    <p className="font-body text-xs sm:text-sm text-[#505f7c] leading-relaxed font-light text-justify">
                       {item.text}
                     </p>
                   </div>

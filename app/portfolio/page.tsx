@@ -97,9 +97,7 @@ export default function PortfolioPage() {
             <h1 className="font-sans text-3xl sm:text-5xl font-extrabold tracking-tight text-white pt-2">
               Nosso Legado em Obras
             </h1>
-            <p className="font-body text-[#becee0] text-sm sm:text-base leading-relaxed font-light">
-              Explore o acervo técnico completo da Motriz Engenharia. Projetos estruturais, obras de infraestrutura, empreendimentos industriais e instalações de alta complexidade desenvolvidas com máxima precisão técnica.
-            </p>
+
           </div>
         </div>
       </section>
@@ -210,7 +208,7 @@ export default function PortfolioPage() {
                       <h3 className="font-sans text-base font-extrabold text-[#2d3f65] tracking-tight group-hover:text-[#45567e] transition-colors pt-2 h-auto line-clamp-2">
                         {project.title}
                       </h3>
-                      <p className="font-body text-xs text-zinc-500 leading-relaxed line-clamp-3">
+                      <p className="font-body text-xs text-zinc-500 leading-relaxed line-clamp-3 text-justify">
                         {getProjectDetails(project).substring(0, 140)}...
                       </p>
                     </div>

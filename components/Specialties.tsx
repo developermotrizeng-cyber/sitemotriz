@@ -115,7 +115,31 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Settings: Settings,
   Eye: Eye,
   Folder: Folder,
-  Pencil: Pencil
+  Pencil: Pencil,
+  Roller: (props: React.ComponentProps<'svg'>) => (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={props.className}
+    >
+      <circle cx="6" cy="17" r="2.5" />
+      <circle cx="6" cy="17" r="0.8" />
+      <circle cx="18" cy="16" r="3.5" />
+      <circle cx="18" cy="16" r="0.8" />
+      <path d="M3 17h3" />
+      <path d="M9 17h5" />
+      <path d="M3 17a3 3 0 0 1 6 0" />
+      <rect x="13" y="14" width="8" height="2.5" rx="0.5" />
+      <path d="M9 12V6h4.5l1.5 6Z" />
+      <path d="M9 9h6.2" />
+      <path d="M14 12v3h4" />
+      <path d="M8 12V8h-0.5" />
+    </svg>
+  )
 };
 
 // Map fallback images for specialties preview
@@ -398,7 +422,7 @@ export default function Specialties({
                   </h3>
                 </div>
 
-                <p className="font-body text-[#44464e] leading-relaxed text-sm font-light">
+                <p className="font-body text-[#44464e] leading-relaxed text-sm font-light text-justify">
                   {activeSpecialty.description}
                 </p>
 

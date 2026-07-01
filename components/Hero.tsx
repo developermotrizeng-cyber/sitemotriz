@@ -64,7 +64,7 @@ export default function Hero({ content, onCtaClick }: HeroProps) {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="font-body text-lg sm:text-xl text-[#ceddff] max-w-2xl font-light leading-relaxed text-pretty"
+            className="font-body text-lg sm:text-xl text-[#ceddff] max-w-[624px] font-light leading-relaxed text-pretty text-justify"
             id="hero-header-subtitle"
           >
             {content.subtitle}
@@ -93,7 +93,7 @@ export default function Hero({ content, onCtaClick }: HeroProps) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="pt-16 border-t border-white/20 grid grid-cols-3 max-w-3xl gap-4"
+            className="pt-8 grid grid-cols-3 max-w-3xl gap-4"
           >
             {content.bottomTags.map((tag, idx) => (
               <div key={idx} className="flex items-center space-x-3 group">

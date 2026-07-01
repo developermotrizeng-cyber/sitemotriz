@@ -291,9 +291,7 @@ export default function CareersPage() {
             <h1 className="font-sans text-3xl sm:text-5xl font-extrabold tracking-tight text-white pt-2">
               Trabalhe Conosco
             </h1>
-            <p className="font-body text-[#becee0] text-sm sm:text-base leading-relaxed font-light">
-              Construa sua história na empresa de engenharia civil que mais cresce em Rondônia. Cadastre seu currículo diretamente em nosso banco de talentos virtual e faça parte da nossa equipe.
-            </p>
+
           </div>
         </div>
       </section>
@@ -373,7 +371,7 @@ export default function CareersPage() {
                 <h2 className="font-sans text-lg font-bold text-[#2d3f65]">
                   {siteContent.careersPage?.mainTitle || "Oportunidades em Tecnologia, Engenharia de Obras e Gestão"}
                 </h2>
-                <p className="font-body text-[#505f7c] text-xs leading-relaxed max-w-xl">
+                <p className="font-body text-[#505f7c] text-xs leading-relaxed max-w-xl text-justify">
                   {siteContent.careersPage?.description || "Buscamos engenheiros civis, técnicos de edificações, mestres de obras e estagiários comprometidos com rigor metodológico, inovação e entrega pontual."}
                 </p>
               </div>

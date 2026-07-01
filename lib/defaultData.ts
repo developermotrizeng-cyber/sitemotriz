@@ -595,7 +595,7 @@ export const defaultSiteContent: SiteContent = {
       },
       {
         "id": "spec-5",
-        "icon": "Wrench",
+        "icon": "Roller",
         "image": "https://npnnnavejpwrddzukpmg.supabase.co/storage/v1/object/public/media/public/spec-spec-5-1782762749790-99.jpg",
         "title": "PAVIMENTAÇÃO",
         "images": [
